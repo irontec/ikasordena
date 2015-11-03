@@ -273,6 +273,13 @@ void GamePlay::loadNextGamePlay()
     } while (find(_loadedIndex.begin(), _loadedIndex.end(), subCategoryPosition) != _loadedIndex.end() || subCategoryPosition == -1);
     _loadedIndex.push_back(subCategoryPosition);
     
+    vector<Option*> options = _subCategories.at(subCategoryPosition)->getOptions();
+    
+    
+    
+    
+    
+    
     _elapsedTime = 0;
     
    float timeDifficulty =_totalSuccessScreens * TimeToReduce.asFloat();

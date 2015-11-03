@@ -2,6 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>Ranking</key>
+	<dict>
+		<key>points</key>
+		<string>Puntos</string>
+		<key>player</key>
+		<string>Jugador</string>
+		<key>loading</key>
+		<string>Cargando</string>
+	</dict>
 	<key>GamePlay</key>
 	<dict>
 		<key>category-title</key>
@@ -13,8 +22,12 @@
 	</dict>
 	<key>Lose</key>
 	<dict>
+		<key>name</key>
+		<string>Nombre</string>
 		<key>title</key>
 		<string>Tiempo agotado</string>
+		<key>sendPoints</key>
+		<string>Enviar Puntuación</string>
 		<key>points-title</key>
 		<string>Puntuación</string>
 		<key>points-value</key>

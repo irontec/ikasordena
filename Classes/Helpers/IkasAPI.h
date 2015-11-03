@@ -28,16 +28,22 @@ public:
     
     void checkForLatestZipData(const IkasResultHandler& callback, const IkasHandler& errorCallback);
     void downloadLatestZip(const IkasHandler& successCallback, const IkasHandler& errorCallback, const IkasValueHandler progressCallback);
+    
+    void checkForLatestRankingData(const IkasRankingDataHandler& dataCallback, const IkasHandler& errorCallback);
+    void sendRankingData(string username, int points, const IkasHandler& successCallback, const IkasHandler& errorCallback);
 protected:
     IkasResultHandler _resultCallback;
     IkasHandler _successCallback, _errorCallback;
-//    IkasValueHandler _progressCallback;
+    IkasRankingDataHandler _dataCallback;
 private:
     void checkForLatestZipDataCallback(HttpClient* client , HttpResponse* response);
     void downloadLatestZipCallback(HttpClient* client , HttpResponse* response);
-//    void customProgressCallback(double percentage);
+    //    void customProgressCallback(double percentage);
     void customSuccessCallback();
     void customErrorCallback();
+    
+    void checkForLatestRankingDataCallback(HttpClient* client , HttpResponse* response);
+    void sendRankingDataCallback(HttpClient *client, HttpResponse* response);
 };
 
 #endif /* defined(__IkasGame__IkasAPI__) */

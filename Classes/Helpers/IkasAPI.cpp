@@ -12,7 +12,12 @@
 #include "../json/cJSON.h"
 #include "../Helpers/AppleHelper.h"
 
+#include "../Singletons/GamePlayPointsManager.h"
+#include "../Helpers/DataFileManager.h"
+#include "../Scenes/Lose.h"
+
 static const Value JsonURL = Value(ApiURL);
+static const Value RankURL = Value(RankingURL);
 
 bool IkasAPI::init()
 {
@@ -28,13 +33,13 @@ void IkasAPI::checkForLatestZipData(const IkasResultHandler& callback, const Ika
 {
     this->_resultCallback = callback;
     this->_errorCallback = errorCallback;
-
+    
     auto request = new HttpRequest();
     request->setUrl(JsonURL.asString().c_str());
     request->setRequestType(cocos2d::network::HttpRequest::Type::GET);
     request->setResponseCallback(CC_CALLBACK_2(IkasAPI::checkForLatestZipDataCallback ,this));
     HttpClient::getInstance()->send(request);
-//    log("checkForLatestZipData..");
+    //    log("checkForLatestZipData..");
 }
 
 void IkasAPI::checkForLatestZipDataCallback(HttpClient* client, HttpResponse* response)
@@ -44,7 +49,7 @@ void IkasAPI::checkForLatestZipDataCallback(HttpClient* client, HttpResponse* re
     
     std::vector<char>* buffer = response->getResponseData();
     log("buffet size :: %lu" , buffer->size());
-
+    
     if (response->isSucceed() && !buffer->empty() && (response->getResponseCode() >= 200 && response->getResponseCode() < 400)) {
         std::string data(buffer->begin(), buffer->end());
         log("%s", data.c_str());
@@ -82,7 +87,7 @@ void IkasAPI::downloadLatestZip(const IkasHandler& successCallback, const IkasHa
 {
     _successCallback = successCallback;
     _errorCallback = errorCallback;
-//    _progressCallback = progressCallback;
+    //    _progressCallback = progressCallback;
     
     const char* zipUrl = GameSettingsManager::getInstance()->getZipUrl().c_str();
     
@@ -96,7 +101,7 @@ void IkasAPI::downloadLatestZip(const IkasHandler& successCallback, const IkasHa
     request->setResponseCallback(CC_CALLBACK_2(IkasAPI::downloadLatestZipCallback ,this));
     HttpClient::getInstance()->send(request);
 #endif
-//    log("downloadLatestZip..");
+    //    log("downloadLatestZip..");
 }
 
 void IkasAPI::customSuccessCallback()
@@ -139,3 +144,93 @@ void IkasAPI::downloadLatestZipCallback(HttpClient* client, HttpResponse* respon
     }
 }
 
+void IkasAPI::checkForLatestRankingData(const IkasRankingDataHandler& callback, const IkasHandler& errorCallback)
+{
+    this->_dataCallback = callback;
+    this->_errorCallback = errorCallback;
+    
+    auto request = new HttpRequest();
+    request->setUrl(RankURL.asString().c_str());
+    request->setRequestType(cocos2d::network::HttpRequest::Type::GET);
+    request->setResponseCallback(CC_CALLBACK_2(IkasAPI::checkForLatestRankingDataCallback, this));
+    HttpClient::getInstance()->send(request);
+}
+
+void IkasAPI::checkForLatestRankingDataCallback(HttpClient* client, HttpResponse* response)
+{
+    log("checkForLatestRankingDataCallback. response code: %ld", response->getResponseCode());
+    
+    std::vector<char>* buffer = response->getResponseData();
+    
+    if (response->isSucceed() && !buffer->empty() && (response->getResponseCode() >= 200 && response->getResponseCode() < 400)) {
+        std::string data(buffer->begin(), buffer->end());
+        cJSON *pRoot = cJSON_Parse(data.c_str());
+        if (pRoot != NULL) {
+            cJSON *rankingArray = cJSON_GetObjectItem(pRoot, "ranking");
+            int totalRankings = cJSON_GetArraySize(rankingArray);
+            vector<RankingData*> ranking;
+            for (int j = 0; j < totalRankings; j++)
+            {
+                cJSON *jsonRankingObj = cJSON_GetArrayItem(rankingArray, j);
+                std::string rankingUser = cJSON_GetObjectItem(jsonRankingObj, "user")->valuestring;
+                int rankingPoints = cJSON_GetObjectItem(jsonRankingObj, "points")->valueint;
+                
+                RankingData *rankingData = new RankingData();
+                rankingData->setpoints(rankingPoints);
+                rankingData->setuser(rankingUser.c_str());
+                ranking.push_back(rankingData);
+            }
+            
+            if (_dataCallback) {
+                _dataCallback(true, ranking);
+            }
+        } else {
+            if (_dataCallback) {
+                _dataCallback(false, std::vector<RankingData*>());
+            }
+        }
+    } else {
+        if (_errorCallback) {
+            _errorCallback(this);
+        }
+    }
+}
+
+void IkasAPI::sendRankingData(string username, int points, const IkasHandler& successCallback, const IkasHandler& errorCallback)
+{
+    this->_successCallback = successCallback;
+    this->_errorCallback = errorCallback;
+    
+    auto request = new HttpRequest();
+    request->setUrl(RankURL.asString().c_str());
+    request->setRequestType(cocos2d::network::HttpRequest::Type::POST);
+    request->setResponseCallback(CC_CALLBACK_2(IkasAPI::sendRankingDataCallback ,this));
+    
+    
+    string pointsStr;
+    ostringstream convert;
+    convert << points;
+    pointsStr = convert.str();
+    
+    //Post Request
+    std::string postData = "";
+    postData.append("user=").append(username);
+    postData.append("&points=").append(pointsStr);
+    
+    request->setRequestData(postData.c_str(), strlen(postData.c_str()));
+    HttpClient::getInstance()->send(request);
+}
+
+void IkasAPI::sendRankingDataCallback(HttpClient *client, HttpResponse* response)
+{
+    log("sendRankingDataCallback. response code: %ld", response->getResponseCode());
+    
+    std::vector<char>* buffer = response->getResponseData();
+    log("buffet size :: %lu" , buffer->size());
+    
+    if (response->isSucceed() && !buffer->empty() && (response->getResponseCode() >= 200 && response->getResponseCode() < 400)) {
+        _successCallback(this);
+    } else {
+        _errorCallback(this);
+    }
+}

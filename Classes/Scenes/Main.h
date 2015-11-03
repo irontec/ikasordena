@@ -12,6 +12,7 @@
 #include "cocos2d.h"
 #include "../Constants/Constants.h"
 #include "../Helpers/IkasAPI.h"
+#include "../CustomGUI/SpriteButton.h"
 
 using namespace cocos2d;
 
@@ -39,5 +40,7 @@ private:
     void checkNewData();
     
     void downloadLatestData(const IkasHandler& successCallback, const IkasHandler& errorCallback, const IkasValueHandler progressCallback);
+    
+    SpriteButton *_buttonPlay, *_buttonAbout, *_buttonSFXSettings, *_buttonRanking;
 };
 #endif /* defined(__IkasCocosGame__Main__) */

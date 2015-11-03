@@ -15,7 +15,6 @@
 #include "../Helpers/LanguageManager.h"
 #include "../Helpers/ScreenSizeManager.h"
 #include "../Helpers/ImageManager.h"
-#include "../CustomGUI/SpriteButton.h"
 
 const Value DelayMinTime = Value(5.0f);
 
@@ -65,47 +64,56 @@ bool Main::init()
     playLayer->setPosition(0, 0);
     playLayer->setVisible(false);
     
-    auto buttonPlay = SpriteButton::create(ImageManager::getImage("play"), 0.5f, CC_CALLBACK_1(Main::changeScene, this));
-    buttonPlay->setTag(static_cast<int>(SceneType::CATEGORIES));
-    buttonPlay->setAnchorPoint(Point::ANCHOR_MIDDLE);
+    _buttonPlay = SpriteButton::create(ImageManager::getImage("play"), 0.5f, CC_CALLBACK_1(Main::changeScene, this));
+    _buttonPlay->setTag(static_cast<int>(SceneType::CATEGORIES));
+    _buttonPlay->setAnchorPoint(Point::ANCHOR_MIDDLE);
     Vec2 positionPlay = ScreenSizeManager::getScreenPositionFromPercentage(50, 50);
     positionPlay.y -= ScreenSizeManager::getHeightFromPercentage(18);
     
     // Adjust views to strech screens
     float logoBottom = logo->getPosition().y - logo->getBoundingBox().size.height/2;
-    float playTop = positionPlay.y + buttonPlay->getBoundingBox().size.height/2;
+    float playTop = positionPlay.y + _buttonPlay->getBoundingBox().size.height/2;
     int margin = 10;
     if (logoBottom <= (playTop + margin)) {
-        positionPlay.y = logoBottom - margin - buttonPlay->getBoundingBox().size.height/2;
+        positionPlay.y = logoBottom - margin - _buttonPlay->getBoundingBox().size.height/2;
     }
-    buttonPlay->setPosition(positionPlay);
-    playLayer->addChild(buttonPlay);
+    _buttonPlay->setPosition(positionPlay);
+    playLayer->addChild(_buttonPlay);
     
     auto labelPlay = Label::createWithTTF(LanguageManager::getLocalizedText("Main", "play"), MainRegularFont, 70);
     labelPlay->setAlignment(TextHAlignment::CENTER);
     labelPlay->setAnchorPoint(Point::ANCHOR_MIDDLE_TOP);
     labelPlay->setTextColor(IkasGrayDark);
-    Vec2 positionLabelPlay = buttonPlay->getPosition();
+    Vec2 positionLabelPlay = _buttonPlay->getPosition();
     positionLabelPlay.y -= ScreenSizeManager::getHeightFromPercentage(2);
-    positionLabelPlay.y -= buttonPlay->getBoundingBox().size.height / 2;
+    positionLabelPlay.y -= _buttonPlay->getBoundingBox().size.height / 2;
     labelPlay->setPosition(positionLabelPlay);
     playLayer->addChild(labelPlay);
 
-    auto buttonAbout = SpriteButton::create(ImageManager::getImage("info"), 0.30f, CC_CALLBACK_1(Main::openInfo, this));
-    buttonAbout->setAnchorPoint(Point::ANCHOR_MIDDLE);
+    _buttonAbout = SpriteButton::create(ImageManager::getImage("info"), 0.30f, CC_CALLBACK_1(Main::openInfo, this));
+    _buttonAbout->setAnchorPoint(Point::ANCHOR_MIDDLE);
     Vec2 positionAbout = ScreenSizeManager::getScreenPositionFromPercentage(95, 5);
-    positionAbout.x -= buttonAbout->getBoundingBox().size.width / 2;
-    positionAbout.y += buttonAbout->getBoundingBox().size.height / 2;
-    buttonAbout->setPosition(positionAbout);
-    playLayer->addChild(buttonAbout);
+    positionAbout.x -= _buttonAbout->getBoundingBox().size.width / 2;
+    positionAbout.y += _buttonAbout->getBoundingBox().size.height / 2;
+    _buttonAbout->setPosition(positionAbout);
+    playLayer->addChild(_buttonAbout);
     
-    auto buttonSFXSettings = SpriteButton::create(ImageManager::getImage(GameSettingsManager::getInstance()->getIsSFXOn() ? SoundEnableImage : SoundDisableImage), 0.30f, CC_CALLBACK_1(Main::switchSoundSettings, this));
-    buttonSFXSettings->setAnchorPoint(Point::ANCHOR_MIDDLE);
-    Vec2 positionSFXSettings = buttonAbout->getPosition();
+    _buttonSFXSettings = SpriteButton::create(ImageManager::getImage(GameSettingsManager::getInstance()->getIsSFXOn() ? SoundEnableImage : SoundDisableImage), 0.30f, CC_CALLBACK_1(Main::switchSoundSettings, this));
+    _buttonSFXSettings->setAnchorPoint(Point::ANCHOR_MIDDLE);
+    Vec2 positionSFXSettings = _buttonAbout->getPosition();
     positionSFXSettings.x -= ScreenSizeManager::getWidthFromPercentage(5);
-    positionSFXSettings.x -= buttonSFXSettings->getBoundingBox().size.width;
-    buttonSFXSettings->setPosition(positionSFXSettings);
-    playLayer->addChild(buttonSFXSettings);
+    positionSFXSettings.x -= _buttonSFXSettings->getBoundingBox().size.width;
+    _buttonSFXSettings->setPosition(positionSFXSettings);
+    playLayer->addChild(_buttonSFXSettings);
+    
+    _buttonRanking = SpriteButton::create(ImageManager::getImage("ranking"), 0.30f, CC_CALLBACK_1(Main::changeScene, this));
+    _buttonRanking->setTag(static_cast<int>(SceneType::RANKING));
+    _buttonRanking->setAnchorPoint(Point::ANCHOR_MIDDLE);
+    Vec2 positionRanking = ScreenSizeManager::getScreenPositionFromPercentage(11, 5);
+    positionRanking.x -= _buttonRanking->getBoundingBox().size.width / 2;
+    positionRanking.y += _buttonRanking->getBoundingBox().size.height / 2;
+    _buttonRanking->setPosition(positionRanking);
+    playLayer->addChild(_buttonRanking);
     
     this->addChild(playLayer);
     
@@ -201,6 +209,11 @@ void Main::showLoading(bool show)
 {
     loadingLayer->setVisible(show);
     playLayer->setVisible(!show);
+    
+    _buttonPlay->setEnabled(!show);
+    _buttonAbout->setEnabled(!show);
+    _buttonSFXSettings->setEnabled(!show);
+    _buttonRanking->setEnabled(!show);
 }
 
 void Main::moveResourcesZipAndUnzip()

@@ -16,6 +16,7 @@
 #include "../Scenes/Pause.h"
 #include "../Scenes/Win.h"
 #include "../Scenes/Lose.h"
+#include "../Scenes/Ranking.h"
 
 using namespace cocos2d;
 
@@ -70,6 +71,9 @@ void SceneManager::runSceneWithType(const SceneType sceneType)
             break;
         case SceneType::LOSE:
             sceneToRun = Lose::createScene();
+            break;
+        case SceneType::RANKING:
+            sceneToRun = Ranking::createScene();
             break;
         default:
             log("WARNING! Default value when trying to run scene with id %d", static_cast<int>(sceneType));

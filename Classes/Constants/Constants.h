@@ -15,19 +15,23 @@ using namespace cocos2d;
 /**
  * Embedded zip name
  */
-static std::string DefaultZipName = "ikasesteka-551009f6e525f.zip";
+static std::string DefaultZipName = "ikasordena-563774185acd0.zip";
 
 /**
  * URL´s
  */
-static std::string ApiURL = "http://www.ikastek.net/ikastek-klear/apps-data/ikasesteka";
-static std::string InfoURL = "http://www.ikastek.net/aplikazioak/umeentzako/ikasesteka/";
+static std::string ApiURL = "http://www.ikastek.net/ikastek-klear/apps-data/ikasordena";
+static std::string RankingURL = "http://ikastek.net/ikastek-klear/rest/rankings?app=8";
+static std::string InfoURL = "http://www.ikastek.net/aplikazioak/umeentzako/ikasordena/";
 
 /**
  * Custom callbacks
  */
 typedef std::function<void(Ref*)> IkasHandler;
 typedef std::function<void(Ref*, bool)> IkasResultHandler;
+
+#include "../GameModels/RankingData.h"
+typedef std::function<void(bool, std::vector<RankingData*>)> IkasRankingDataHandler;
 
 typedef std::function<void()> IkasEmptyHandler;
 typedef std::function<void(double)> IkasValueHandler;
@@ -50,10 +54,9 @@ static std::string SoundDisableImage = "sound-off";
  */
 static cocos2d::Color4B IkasPink = cocos2d::Color4B(231, 58, 82, 255);
 static cocos2d::Color4B IkasRed = cocos2d::Color4B(190, 22, 34, 255);
-
+static cocos2d::Color4B IkasWhite = cocos2d::Color4B(255, 255, 255, 255);
 static cocos2d::Color4B IkasGrayLight = cocos2d::Color4B(173, 173, 173, 255);
 static cocos2d::Color4B IkasGrayDark = cocos2d::Color4B(87, 87, 87, 255);
-
 static cocos2d::Color4B IkasPinkAlpha = cocos2d::Color4B(231, 58, 82, 130);
 
 /**
@@ -69,7 +72,8 @@ enum class SceneType
     GAMEPLAY,
     PAUSE,
     WIN,
-    LOSE
+    LOSE,
+    RANKING
 };
 
 /**

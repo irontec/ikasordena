@@ -39,6 +39,11 @@ bool Lose::init()
     
     Rect visibleRect = ScreenSizeManager::getVisibleRect();
     
+    resultLayer = Layer::create();
+    resultLayer->setContentSize(visibleRect.size);
+    resultLayer->setPosition(0, 0);
+    resultLayer->setVisible(true);
+    
     auto background = Sprite::create(ImageManager::getImage("background"), visibleRect);
     background->setPosition(ScreenSizeManager::getScreenPositionFromPercentage(50, 50));
     background->setAnchorPoint(Point::ANCHOR_MIDDLE);
@@ -48,7 +53,7 @@ bool Lose::init()
     buttonNextGamePlay->setAnchorPoint(Point::ANCHOR_MIDDLE);
     Vec2 positionButtonNextGamePlay = ScreenSizeManager::getScreenPositionFromPercentage(50, 50);
     buttonNextGamePlay->setPosition(positionButtonNextGamePlay);
-    this->addChild(buttonNextGamePlay);
+    resultLayer->addChild(buttonNextGamePlay);
     
     auto labelResume = Label::createWithTTF(LanguageManager::getLocalizedText("Lose", "reset"), MainRegularFont, 70);
     labelResume->setAlignment(TextHAlignment::CENTER);
@@ -58,7 +63,7 @@ bool Lose::init()
     positionLabelResume.y -= buttonNextGamePlay->getBoundingBox().size.height / 2;
     positionLabelResume.y -= ScreenSizeManager::getHeightFromPercentage(1);
     labelResume->setPosition(positionLabelResume);
-    this->addChild(labelResume);
+    resultLayer->addChild(labelResume);
     
     std::ostringstream totalPoints;
     totalPoints << GamePlayPointsManager::getInstance()->getCurrentPoints() << " " << LanguageManager::getLocalizedText("Lose", "points-value");
@@ -72,7 +77,7 @@ bool Lose::init()
     positionLabelPointsValue.y += labelPointsValue->getBoundingBox().size.height / 2;
     positionLabelPointsValue.y += ScreenSizeManager::getHeightFromPercentage(1);
     labelPointsValue->setPosition(positionLabelPointsValue);
-    this->addChild(labelPointsValue);
+    resultLayer->addChild(labelPointsValue);
     
     auto labelPointsTitle = Label::createWithTTF(LanguageManager::getLocalizedText("Lose", "points-title"), MainRegularFont, 75);
     labelPointsTitle->setAlignment(TextHAlignment::CENTER);
@@ -83,7 +88,7 @@ bool Lose::init()
     positionLabelPointsTitle.y += labelPointsTitle->getBoundingBox().size.height / 2;
     positionLabelPointsTitle.y += ScreenSizeManager::getHeightFromPercentage(1);
     labelPointsTitle->setPosition(positionLabelPointsTitle);
-    this->addChild(labelPointsTitle);
+    resultLayer->addChild(labelPointsTitle);
 
     auto labelTitle = Label::createWithTTF(LanguageManager::getLocalizedText("Lose", "title"), MainRegularFont, 90);
     labelTitle->setAlignment(TextHAlignment::CENTER);
@@ -94,20 +99,74 @@ bool Lose::init()
     positionLabelTitle.y += labelTitle->getBoundingBox().size.height / 2;
     positionLabelTitle.y += ScreenSizeManager::getHeightFromPercentage(1);
     labelTitle->setPosition(positionLabelTitle);
-    this->addChild(labelTitle);
+    resultLayer->addChild(labelTitle);
     
     auto buttonSoundSettings = SpriteButton::create(ImageManager::getImage(GameSettingsManager::getInstance()->getIsSFXOn() ? SoundEnableImage : SoundDisableImage), 0.30f, CC_CALLBACK_1(Lose::switchSoundSettings, this));
     buttonSoundSettings->setAnchorPoint(Point::ANCHOR_MIDDLE);
     Vec2 positionButtonSoundSettings = ScreenSizeManager::getScreenPositionFromPercentage(80, 15);
     buttonSoundSettings->setPosition(positionButtonSoundSettings);
-    this->addChild(buttonSoundSettings);
+    resultLayer->addChild(buttonSoundSettings);
     
     auto buttonHome = SpriteButton::create(ImageManager::getImage("home"), 0.30f, CC_CALLBACK_1(Lose::returnHome, this));
     buttonHome->setAnchorPoint(Point::ANCHOR_MIDDLE);
     Vec2 positionButtonHome = ScreenSizeManager::getScreenPositionFromPercentage(22, 15);
     buttonHome->setPosition(positionButtonHome);
-    this->addChild(buttonHome);
+    resultLayer->addChild(buttonHome);
     
+    auto buttonEditName = Sprite::create(ImageManager::getImage("editBoxRanking"));
+    buttonEditName->setAnchorPoint(Point::ANCHOR_MIDDLE);
+    buttonEditName->setScale(0.65f, 0.9f);
+    Vec2 positionbuttonEditName = ScreenSizeManager::getScreenPositionFromPercentage(50, 18);
+    buttonEditName->setPosition(positionbuttonEditName);
+    resultLayer->addChild(buttonEditName);
+    
+    _usernameBox = ui::EditBox::create(Size(ScreenSizeManager::getWidthFromPercentage(15), ScreenSizeManager::getHeightFromPercentage(12)), ui::Scale9Sprite::create(ImageManager::getImage("editBoxRankingBackground")));
+    Vec2 usernamePosition = buttonEditName->getPosition();
+    _usernameBox->setPosition(usernamePosition);
+    _usernameBox->setFontName(MainRegularFont.c_str());
+    _usernameBox->setFontSize(100);
+    _usernameBox->setFontColor(Color3B(IkasRed));
+    _usernameBox->setPlaceHolder(LanguageManager::getLocalizedText("Lose", "name").c_str());
+    _usernameBox->setPlaceholderFontSize(20);
+    _usernameBox->setPlaceholderFontColor(Color3B(IkasRed));
+    _usernameBox->setMaxLength(3);
+    _usernameBox->setReturnType(ui::EditBox::KeyboardReturnType::DONE);
+    resultLayer->addChild(_usernameBox);
+    
+    _sendPointsButton = SpriteButton::create(ImageManager::getImage("buttonSendRanking"), 0.50f, CC_CALLBACK_1(Lose::sendPoints, this));
+    Vec2 sendPointsButtonPosition = ScreenSizeManager::getScreenPositionFromPercentage(50, 8);
+    _sendPointsButton->setPosition(sendPointsButtonPosition);
+    resultLayer->addChild(_sendPointsButton);
+    
+    auto sendPointsLabel = LabelTTF::create(LanguageManager::getLocalizedText("Lose", "sendPoints"), MainRegularFont, 30);
+    sendPointsLabel->setPosition(_sendPointsButton->getPositionX()/2, _sendPointsButton->getPositionY()/2);
+    Vec2 sendPointsLabelPosition = _sendPointsButton->getPosition();
+    sendPointsLabel->setPosition(sendPointsLabelPosition);
+    resultLayer->addChild(sendPointsLabel, 10);
+    
+    this->addChild(resultLayer);
+    
+    // Loading Layer
+    loadingLayer = Layer::create();
+    loadingLayer->setContentSize(visibleRect.size);
+    loadingLayer->setPosition(0, 0);
+    loadingLayer->setVisible(false);
+    
+    auto loadingAnimation = Sprite::create(ImageManager::getImage("loading"));
+    loadingAnimation->setScale(0.40f);
+    loadingAnimation->setAnchorPoint(Point::ANCHOR_MIDDLE);
+    Vec2 positionLoadingAnimation = ScreenSizeManager::getScreenPositionFromPercentage(50, 50);
+    
+    loadingAnimation->setPosition(positionLoadingAnimation);
+    loadingLayer->addChild(loadingAnimation);
+    
+    ActionInterval* rotate = RotateBy::create(1.0f, 360.0f);
+    RepeatForever *repeat = RepeatForever::create(rotate);
+    loadingAnimation->runAction(repeat);
+    
+    this->addChild(loadingLayer);
+
+    _api = new IkasAPI();
     return true;
 }
 
@@ -134,4 +193,44 @@ void Lose::returnHome(Ref* sender)
     AppManager::getInstance()->setGamePlayDelegate(NULL);
     SceneManager::getInstance()->runSceneWithType(SceneType::MAIN);
     SceneManager::getInstance()->removeSavedScene();
+}
+
+
+void Lose::showLoading(bool show)
+{
+    loadingLayer->setVisible(show);
+    resultLayer->setVisible(!show);
+    
+    _sendPointsButton->setVisible(!show);
+    _sendPointsButton->setEnabled(!show);
+    _usernameBox->setVisible(!show);
+    _usernameBox->setEnabled(!show);
+}
+
+void Lose::sendPoints(Ref* sender)
+{
+    auto username = string(_usernameBox->getText());
+    if (username != "") {
+        showLoading(true);
+        
+        std::for_each(username.begin(), username.end(), [](char&c){c=std::toupper(c);});
+        
+        auto points = GamePlayPointsManager::getInstance()->getCurrentPoints();
+        
+        _api->sendRankingData(username, points, CC_CALLBACK_1(Lose::successDataUploaded, this), CC_CALLBACK_1(Lose::errorDataUploaded, this));
+    }
+}
+
+void Lose::successDataUploaded(Ref* sender)
+{
+    showLoading(false);
+    SceneManager::getInstance()->runSceneWithType(SceneType::RANKING);
+    GamePlayPointsManager::getInstance()->resetCurrentPoints();
+    AppManager::getInstance()->setGamePlayDelegate(NULL);
+    SceneManager::getInstance()->removeSavedScene();
+}
+
+void Lose::errorDataUploaded(Ref* sender)
+{
+    showLoading(false);
 }

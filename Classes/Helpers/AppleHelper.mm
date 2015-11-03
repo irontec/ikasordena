@@ -35,7 +35,6 @@ void AppleHelper::downloadZip(std::string zipURL, std::string zipPath, const Ika
     NSLog(@"AppleHelper::downloadZip");
     AppleDownloader *me = [[AppleDownloader alloc] init];
     [me download:zipURL toPath:zipPath withSuccessCallback:successCallback errorCallback:errorCallback progressCallback:progressCallback];
-    
 }
 
 
