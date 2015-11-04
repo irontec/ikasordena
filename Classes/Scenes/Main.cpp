@@ -283,7 +283,7 @@ void Main::progressDataDownloaded(double percentage)
     std::ostringstream tmp;
     tmp << percentage;
     std::string value = tmp.str();
-    log("percentaje: %s", value.c_str());
+//    log("percentaje: %s", value.c_str());
     
     std::string text = LanguageManager::getLocalizedText("Main", "loading") + " " + value + "%";
     _labelLoadingAnimation->setString(text);

@@ -138,7 +138,7 @@ bool Lose::init()
     _sendPointsButton->setPosition(sendPointsButtonPosition);
     resultLayer->addChild(_sendPointsButton);
     
-    auto sendPointsLabel = LabelTTF::create(LanguageManager::getLocalizedText("Lose", "sendPoints"), MainRegularFont, 30);
+    auto sendPointsLabel = Label::createWithTTF(LanguageManager::getLocalizedText("Lose", "sendPoints"), MainRegularFont, 30);
     sendPointsLabel->setPosition(_sendPointsButton->getPositionX()/2, _sendPointsButton->getPositionY()/2);
     Vec2 sendPointsLabelPosition = _sendPointsButton->getPosition();
     sendPointsLabel->setPosition(sendPointsLabelPosition);

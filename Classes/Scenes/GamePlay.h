@@ -48,10 +48,19 @@ public:
     virtual void updateScreenGameStats();
     // Time control
     void timeElapsed();
+    
+    //Validate option
+    static bool isValidSubcategory(SubCategory* subCategory);
+    static bool isValidWord(string word);
 private:
     vector<MainCategory*> _categories;
     vector<SubCategory*> _subCategories;
     vector<int> _loadedIndex;
+    Value _currentLives;
+    Option* _currentOption;
+    
+    void clearGameLayer();
+    void createGameLayer(Option* option);
     
     void setupLevelSettings();
     void resetTimer();
@@ -71,7 +80,6 @@ private:
     int _totalSuccessScreens;
     
     SpriteButton* _pauseButton;
-    
     void openSuccessScreen();
 };
 #endif /* defined(__IkasGame__GamePlay__) */

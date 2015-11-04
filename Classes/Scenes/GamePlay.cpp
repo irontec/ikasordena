@@ -23,8 +23,17 @@ const Value TimeToReduce = Value(2.0f);
 const Value TimeMinPercentage = Value(25);
 const Value SuccessTime = Value(1.5);
 
-const float BorderWidth = 2;
-const Color4B BorderColor = IkasGrayLight;
+
+const Value MaxLetters = Value(15);
+const Value MaxLives = Value(6);
+const Value LetterLayerSize = Value(140);
+const Value LetterFontSizeLayerRelation = Value(0.85);
+const Value LetterFontSize = Value(LetterLayerSize.asFloat() * LetterFontSizeLayerRelation.asFloat());
+const Value LetterLayerMargin = Value(10);
+const Value LetterLayerBorderWidth = Value(8);
+
+const float GameLayerBorderWidth = 2;
+const Color4B GameLayerBorderColor = IkasGrayLight;
 
 Scene* GamePlay::createScene()
 {
@@ -69,16 +78,17 @@ bool GamePlay::init()
     gameLayerSize.width = ScreenSizeManager::getWidthFromPercentage(65);
 
     _gameLayer->setContentSize(gameLayerSize);
+    
     _gameLayer->setPosition(ScreenSizeManager::getWidthFromPercentage(100) - margins - _gameLayer->getBoundingBox().size.width, this->getBoundingBox().size.height / 2 - _gameLayer->getBoundingBox().size.height / 2);
     
-    auto borderLayer = LayerColor::create(BorderColor);
+    auto borderLayer = LayerColor::create(GameLayerBorderColor);
     Size borderLayerSize = _gameLayer->getBoundingBox().size;
-    borderLayerSize.width += 2 * BorderWidth;
-    borderLayerSize.height += 2 * BorderWidth;
+    borderLayerSize.width += 2 * GameLayerBorderWidth;
+    borderLayerSize.height += 2 * GameLayerBorderWidth;
     borderLayer->setContentSize(borderLayerSize);
     Vec2 borderLayerPosition = _gameLayer->getPosition();
-    borderLayerPosition.x -= BorderWidth;
-    borderLayerPosition.y -= BorderWidth;
+    borderLayerPosition.x -= GameLayerBorderWidth;
+    borderLayerPosition.y -= GameLayerBorderWidth;
     borderLayer->setPosition(borderLayerPosition);
     
     this->addChild(borderLayer);
@@ -208,6 +218,9 @@ bool GamePlay::init()
     _progress->setType(ProgressTimer::Type::RADIAL);
     _progress->setMidpoint(Point::ANCHOR_MIDDLE);
     
+    // Lives for all gameplays -> If renew when success screen pass to loadNextGameplay method
+    _currentLives = MaxLives;
+    
     this->setupLevelSettings();
     this->restartGame();
     
@@ -264,9 +277,12 @@ void GamePlay::loadNextGamePlay()
         _loadedIndex.clear();
     }
     int subCategoryPosition;
+    SubCategory* subCategory;
     do {
         subCategoryPosition = rand() % _subCategories.size();
-        if (_subCategories.at(subCategoryPosition)->getOptions().size() < 3) {
+        subCategory = _subCategories.at(subCategoryPosition);
+        if (subCategory->getOptions().size() < 1 &&// Only need one item
+            !GamePlay::isValidSubcategory(subCategory)) {//Need to
             subCategoryPosition = -1;
             _loadedIndex.push_back(subCategoryPosition);
         }
@@ -276,19 +292,183 @@ void GamePlay::loadNextGamePlay()
     vector<Option*> options = _subCategories.at(subCategoryPosition)->getOptions();
     
     
+    // Get aleatory option
+    Option *option;
+    bool isValid = false;
+    do {
+        int optionPosition = rand() % options.size();
+        option = options.at(optionPosition);
+        isValid = GamePlay::isValidWord(option->getName());
+    } while (!isValid);
     
-    
-    
+    //Clear and create new game layer
+    clearGameLayer();
+    createGameLayer(option);
     
     _elapsedTime = 0;
     
-   float timeDifficulty =_totalSuccessScreens * TimeToReduce.asFloat();
+   float timeDifficulty = _totalSuccessScreens * TimeToReduce.asFloat();
     _currentLevelTime = _maxTime;
     _currentLevelTime -= timeDifficulty;
     
     float minValue = (_maxTime * TimeMinPercentage.asInt() / 100);
     _currentLevelTime = (minValue > _currentLevelTime ? minValue : _currentLevelTime);
     this->resetTimer();
+}
+
+bool GamePlay::isValidSubcategory(SubCategory* subCategory) {
+    bool hasValidOptions = false;
+    vector<Option*> options = subCategory->getOptions();
+    for (int i = 0; i < options.size(); i++) {
+        Option* option = options.at(i);
+        if (GamePlay::isValidWord(option->getName())) {
+            hasValidOptions = true;
+            break;
+        }
+    }
+    if (!hasValidOptions) {
+        log("no hay opciones válidas");
+    }
+    return hasValidOptions;
+}
+
+
+bool GamePlay::isValidWord(string word) {
+    if (word.size() <= MaxLetters.asInt() &&
+        word.find_first_of(" ") == std::string::npos) {// No whitespaces
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
+void GamePlay::clearGameLayer()
+{
+    _gameLayer->removeAllChildrenWithCleanup(true);
+//    auto childrens = _gameLayer->getChildren();
+//    for (int i = 0; i < childrens.size(); i++) {
+//        auto children = childrens.at(i);
+//        _gameLayer->removeChild(children);
+//    }
+    _currentOption = NULL;
+}
+
+void GamePlay::createGameLayer(Option* option)
+{
+    _currentOption = option;
+    
+    auto height = _gameLayer->getBoundingBox().size.height;
+    auto width = _gameLayer->getBoundingBox().size.width;
+    auto splitSize = MIN(width, height) / 2;
+    auto imageMaxSize = splitSize * 0.80;//Set top middle with margins of 10%
+    
+    auto imageRect = Rect(0, 0, imageMaxSize, imageMaxSize);
+    auto optionImage = Sprite::create(ZipManager::getInstance()->getDataFolderFullPath("hd/options/" + option->getFileName()));
+    auto optionImageSize = optionImage->getContentSize();
+    
+    auto scale = 1.0f;
+    if (optionImageSize.width > optionImageSize.height) {
+        scale = imageMaxSize / optionImageSize.width;
+    } else {
+        scale = imageMaxSize / optionImageSize.height;
+    }
+    optionImage->setScale(scale);
+    
+    optionImage->setAnchorPoint(Point::ANCHOR_MIDDLE);
+    optionImage->setPosition(Vec2(width / 2, (height / 4) * 3));
+    _gameLayer->addChild(optionImage);
+    
+    
+    float currentLetterLayerSize = LetterLayerSize.asFloat();
+    float currentLetterFontSize = LetterFontSize.asFloat();
+    float currentLetterLayerMargin = LetterLayerMargin.asFloat();
+    float currentLetterLayerBorderWidth = LetterLayerBorderWidth.asFloat();
+    
+    int totalLayerWidth = option->getName().size() * currentLetterLayerSize + (option->getName().size() - 1) * currentLetterLayerMargin;
+    float maxWidth = _gameLayer->getBoundingBox().size.width - 2 * currentLetterLayerMargin;
+    if (totalLayerWidth > maxWidth) {
+        // Update maxSizes
+        currentLetterLayerMargin = currentLetterLayerMargin / 2;
+        currentLetterLayerBorderWidth = currentLetterLayerBorderWidth / 2;
+        
+        currentLetterLayerSize = (maxWidth - (option->getName().size() - 1) * currentLetterLayerMargin - 2 * currentLetterLayerMargin) / option->getName().size();
+        currentLetterFontSize = currentLetterLayerSize * LetterFontSizeLayerRelation.asFloat();
+        
+        totalLayerWidth = option->getName().size() * currentLetterLayerSize + (option->getName().size() - 1) * currentLetterLayerMargin;
+    }
+    
+    // Generate UppperCase string vector
+    vector<string> upperCaseName;
+    for (int i = 0; i < option->getName().size(); i++) {
+        string letter(1, toupper(option->getName().at(i)));
+        upperCaseName.push_back(letter.c_str());
+    }
+
+    // Generate unordered vector with letters
+    vector<string> name = upperCaseName;
+    Vector<Label*> unorderedLetters;
+    do {
+        auto position = rand() % name.size();
+        auto letter = name.at(position);
+        Label* letterLabel = Label::createWithTTF(letter, MainBoldFont, currentLetterFontSize);
+        unorderedLetters.pushBack(letterLabel);
+        name.erase(name.begin() + position);
+    } while (name.size() > 0);
+    
+    auto orderedLayer = Layer::create();
+    orderedLayer->setContentSize(Size(totalLayerWidth, currentLetterLayerSize));
+    orderedLayer->ignoreAnchorPointForPosition(false);
+    orderedLayer->setAnchorPoint(Point::ANCHOR_MIDDLE);
+    orderedLayer->setPosition(Vec2(_gameLayer->getBoundingBox().size.width / 2, _gameLayer->getBoundingBox().size.height / 4 - ScreenSizeManager::getHeightFromPercentage(5)));
+
+    for (int i = 0; i < unorderedLetters.size(); i++) {
+        auto layer = LayerColor::create(IkasRed);
+        auto inLayer = LayerColor::create(IkasWhite);
+        
+        layer->setContentSize(Size(currentLetterLayerSize, currentLetterLayerSize));
+        inLayer->setContentSize(Size(currentLetterLayerSize - 2 * currentLetterLayerBorderWidth, currentLetterLayerSize - 2 * currentLetterLayerBorderWidth));
+        inLayer->setPosition(Vec2(currentLetterLayerBorderWidth, currentLetterLayerBorderWidth));
+        
+        layer->setPosition(Vec2(i * currentLetterLayerSize + i * currentLetterLayerMargin, 0));
+        
+        layer->addChild(inLayer);
+        orderedLayer->addChild(layer);
+    }
+    _gameLayer->addChild(orderedLayer);
+    
+    //    auto unorderedLayer = LayerColor::create(Color4B(5, 5, 5, 255));
+    auto unorderedLayer = Layer::create();
+    unorderedLayer->setContentSize(Size(totalLayerWidth, currentLetterLayerSize));
+    unorderedLayer->ignoreAnchorPointForPosition(false);
+    unorderedLayer->setAnchorPoint(Point::ANCHOR_MIDDLE_BOTTOM);
+//    unorderedLayer->setPosition(Vec2(_gameLayer->getBoundingBox().size.width / 2, _gameLayer->getBoundingBox().size.height / 4 + ScreenSizeManager::getHeightFromPercentage(5)));
+    unorderedLayer->setPosition(Vec2(_gameLayer->getBoundingBox().size.width / 2, orderedLayer->getBoundingBox().origin.y + orderedLayer->getBoundingBox().size.height + currentLetterLayerMargin));
+    
+
+    for (int i = 0; i < unorderedLetters.size(); i++) {
+        auto label = unorderedLetters.at(i);
+        auto layer = LayerColor::create(IkasRed);
+        auto inLayer = LayerColor::create(IkasWhite);
+        
+        layer->setContentSize(Size(currentLetterLayerSize, currentLetterLayerSize));
+        inLayer->setContentSize(Size(currentLetterLayerSize - 2 * currentLetterLayerBorderWidth, currentLetterLayerSize - 2 * currentLetterLayerBorderWidth));
+        inLayer->setPosition(Vec2(currentLetterLayerBorderWidth, currentLetterLayerBorderWidth));
+        label->setContentSize(Size(currentLetterLayerSize - 3 * currentLetterLayerBorderWidth, currentLetterLayerSize - 3 * currentLetterLayerBorderWidth));
+        
+        label->setAnchorPoint(Point::ANCHOR_MIDDLE);
+        label->setPosition(layer->getBoundingBox().size.width / 2, layer->getBoundingBox().size.height / 2);
+        
+        label->setColor(Color3B(IkasRed));
+        
+        layer->setPosition(Vec2(i * currentLetterLayerSize + i * currentLetterLayerMargin, 0));
+        
+        layer->addChild(inLayer);
+        layer->addChild(label);
+        unorderedLayer->addChild(layer);
+    }
+    _gameLayer->addChild(unorderedLayer);
+    
 }
 
 void GamePlay::resumeGamePlay()

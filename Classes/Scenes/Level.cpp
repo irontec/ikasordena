@@ -281,6 +281,18 @@ void Level::selectLevel(Ref* sender)
         log("no hay subcategorias con ese nivel!!");
         return;
     }
+    bool hasValidCategories = false;
+    for (int i = 0; subCategories.size(); i++) {
+        SubCategory* subCategory = subCategories.at(i);
+        if (GamePlay::isValidSubcategory(subCategory)) {
+            hasValidCategories = true;
+            break;
+        }
+    }
+    if (!hasValidCategories) {
+        log("no hay opciones válidas");
+        return;
+    }
     GamePlayPointsManager::getInstance()->setCurrentDifficulty(difficulty);
     SceneManager::getInstance()->runSceneWithType(SceneType::GAMEPLAY);
 }
