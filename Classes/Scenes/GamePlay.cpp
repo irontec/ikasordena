@@ -715,9 +715,11 @@ void GamePlay::touchEnded(Touch *touch, Event *pEvent)
     } else if (currentLabelInOrderedLayer != nullptr) {
         restoreLabelToInitialPosition();
     } else if (letter == neededLetter) {
+        SoundManager::getInstance()->successPlay();
         updateLabelToFinalPosition();
     } else {
         log("MAL!!!");
+        SoundManager::getInstance()->failurePlay();
         _totalFails = _totalFails.asInt() + 1;
         _currentLives = _currentLives.asInt() - 1;
         restoreLabelToInitialPosition();
