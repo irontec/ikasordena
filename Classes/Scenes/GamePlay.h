@@ -56,9 +56,7 @@ private:
     vector<MainCategory*> _categories;
     vector<SubCategory*> _subCategories;
     vector<int> _loadedIndex;
-    Value _currentLives;
-    Option* _currentOption;
-    EventListenerTouchOneByOne *_moveListener;
+    
     void clearGameLayer();
     void createGameLayer(Option* option);
     
@@ -69,10 +67,15 @@ private:
     Label *_labelCategory, *_labelPoints, *_labelLevel;
     Layer *_gameLayer, *_touchLayer;
 
+    
     Layer *_unorderedLayer, *_orderedLayer;
     Map<int, Label*> _unorderedLabels, _orderedLabels;
+
+    Value _currentLives, _totalFails;
+    Option* _currentOption;
+    EventListenerTouchOneByOne *_moveListener;
+    
     TouchState _touchState;
-//    Touch _gameLayerInitialTouch, _gameLayerEndTouch;
     Vec2 _initialPosition;
     Label *_currentLabel;
     int _initialIndex, _endIndex;
@@ -91,6 +94,8 @@ private:
     int _totalSuccessScreens;
     
     SpriteButton* _pauseButton;
+    void updateLivesView();
+    void checkGameStatus();
     void openSuccessScreen();
 };
 #endif /* defined(__IkasGame__GamePlay__) */

@@ -211,9 +211,6 @@ bool GamePlay::init()
     _progress->setType(ProgressTimer::Type::RADIAL);
     _progress->setMidpoint(Point::ANCHOR_MIDDLE);
     
-    // Lives for all gameplays -> If renew when success screen pass to loadNextGameplay method
-    _currentLives = MaxLives;
-    
     this->setupLevelSettings();
     this->restartGame();
     
@@ -265,6 +262,9 @@ void GamePlay::pauseGame(Ref* sender)
 // GamePlayDelegate
 void GamePlay::loadNextGamePlay()
 {
+    // Reset fails
+    _totalFails = 0;
+    
     // Aleatory unique order
     if (_loadedIndex.size() >= _subCategories.size() * 0.75) {
         _loadedIndex.clear();
@@ -284,7 +284,6 @@ void GamePlay::loadNextGamePlay()
     
     vector<Option*> options = _subCategories.at(subCategoryPosition)->getOptions();
     
-    
     // Get aleatory option
     Option *option;
     bool isValid = false;
@@ -297,6 +296,7 @@ void GamePlay::loadNextGamePlay()
     //Clear and create new game layer
     clearGameLayer();
     createGameLayer(option);
+    updateLivesView();
     
     _elapsedTime = 0;
     
@@ -348,6 +348,9 @@ void GamePlay::clearGameLayer()
 
 void GamePlay::createGameLayer(Option* option)
 {
+    _orderedLabels.clear();
+    _unorderedLabels.clear();
+    
     _currentOption = option;
     
     auto height = _gameLayer->getBoundingBox().size.height;
@@ -439,7 +442,6 @@ void GamePlay::createGameLayer(Option* option)
     _unorderedLayer->setAnchorPoint(Point::ANCHOR_MIDDLE_BOTTOM);
     _unorderedLayer->setPosition(Vec2(_gameLayer->getBoundingBox().size.width / 2, _orderedLayer->getBoundingBox().origin.y + _orderedLayer->getBoundingBox().size.height + currentLetterLayerMargin));
     
-
     for (int i = 0; i < unorderedLetters.size(); i++) {
         auto label = unorderedLetters.at(i);
         auto layer = LayerColor::create(IkasRed);
@@ -449,7 +451,6 @@ void GamePlay::createGameLayer(Option* option)
         layer->setContentSize(Size(currentLetterLayerSize, currentLetterLayerSize));
         inLayer->setContentSize(Size(currentLetterLayerSize - 2 * currentLetterLayerBorderWidth, currentLetterLayerSize - 2 * currentLetterLayerBorderWidth));
         inLayer->setPosition(Vec2(currentLetterLayerBorderWidth, currentLetterLayerBorderWidth));
-//        label->setContentSize(Size(currentLetterLayerSize - 3 * currentLetterLayerBorderWidth, currentLetterLayerSize - 3 * currentLetterLayerBorderWidth));
         label->setContentSize(Size(currentLetterLayerSize, currentLetterLayerSize));
         
         label->setAnchorPoint(Point::ANCHOR_MIDDLE);
@@ -465,11 +466,7 @@ void GamePlay::createGameLayer(Option* option)
         _unorderedLayer->addChild(layer);
     }
     _gameLayer->addChild(_unorderedLayer);
-//    _gameLayer->removeChild(_touchLayer);
-//    _gameLayer->addChild(_touchLayer);
-//    _gameLayer->setZOrder(50);
     if (_touchLayer != nullptr) {
-//        _touchLayer->removeFromParentAndCleanup(true);
         Director::getInstance()->getEventDispatcher()->removeEventListener(_moveListener);
     }
     
@@ -482,6 +479,12 @@ void GamePlay::createGameLayer(Option* option)
     
 }
 
+void GamePlay::updateLivesView()
+{
+    // Check _currentLivez > 0 !!!!!!
+    log("current lives: %d", _currentLives.asInt());
+}
+
 void GamePlay::resumeGamePlay()
 {
     this->resetTimer();
@@ -490,6 +493,7 @@ void GamePlay::resumeGamePlay()
 void GamePlay::restartGame()
 {
     GamePlayPointsManager::getInstance()->resetCurrentPoints();
+    _currentLives = MaxLives;
     this->loadNextGamePlay();
 }
 
@@ -581,6 +585,40 @@ EventListenerTouchOneByOne *GamePlay::addEvents()
     return listener;
 }
 
+void GamePlay::checkGameStatus()
+{
+    auto currentName = _currentOption->getName();
+    if (_orderedLabels.size() == currentName.size()) {
+        bool successResult = true;
+        for (int i = 0; i < _orderedLabels.size(); i++) {
+            string letter(1, toupper(currentName.at(i)));
+            auto label = _orderedLabels.at(i);
+            if (letter != label->getString()) {
+                successResult = false;
+                break;
+            }
+        }
+        if (successResult) {
+            if (_totalFails.asInt() == 0 && _currentLives.asInt() < MaxLives.asInt()) {
+                _currentLives = _currentLives.asInt() + 1;
+            }
+            _pauseButton->setVisible(false);
+            _elapsedTime += _sequence->getElapsed();
+            _progress->stopAction(_sequence);
+            
+            // All image success
+            DelayTime *delayAction = DelayTime::create(SuccessTime.asFloat());
+            CallFunc *mySelector = CallFunc::create(CC_CALLBACK_0(GamePlay::openSuccessScreen, this));
+            
+            this->runAction(Sequence::create(delayAction, mySelector, nullptr));
+        }
+    } else {
+        if (_currentLives.asInt() < 0) {
+            timeElapsed();
+        }
+    }
+}
+
 void GamePlay::openSuccessScreen()
 {
     _totalSuccessScreens++;
@@ -594,8 +632,6 @@ int GamePlay::indexForTouch(Layer *layer, Touch *touch) {
     for (int i = 0; i < _currentOption->getName().size(); i++) {
         Vec2 letterLocation = layer->convertTouchToNodeSpace(touch);
         Layer *letterLayer = (Layer *)layer->getChildByTag(i);
-//        Label *letterLabel = _unorderedLabels.at(i);
-        
         if (letterLayer != nullptr) {
             if (letterLayer->getBoundingBox().containsPoint(letterLocation)) {
                 position = i;
@@ -682,8 +718,12 @@ void GamePlay::touchEnded(Touch *touch, Event *pEvent)
         updateLabelToFinalPosition();
     } else {
         log("MAL!!!");
+        _totalFails = _totalFails.asInt() + 1;
+        _currentLives = _currentLives.asInt() - 1;
         restoreLabelToInitialPosition();
+        updateLivesView();
     }
+    checkGameStatus();
 }
 
 void GamePlay::touchMoved(Touch *touch, Event *pEvent)
