@@ -58,7 +58,7 @@ private:
     vector<int> _loadedIndex;
     Value _currentLives;
     Option* _currentOption;
-    
+    EventListenerTouchOneByOne *_moveListener;
     void clearGameLayer();
     void createGameLayer(Option* option);
     
@@ -67,10 +67,21 @@ private:
     void pauseGame(Ref* sender);
 
     Label *_labelCategory, *_labelPoints, *_labelLevel;
-    
     Layer *_gameLayer, *_touchLayer;
 
+    Layer *_unorderedLayer, *_orderedLayer;
+    Map<int, Label*> _unorderedLabels, _orderedLabels;
     TouchState _touchState;
+//    Touch _gameLayerInitialTouch, _gameLayerEndTouch;
+    Vec2 _initialPosition;
+    Label *_currentLabel;
+    int _initialIndex, _endIndex;
+    
+    int indexForTouch(Layer *layer,  Touch *touch);
+    void startMovingLabel(Touch *touch);
+    void updateLabelPosition(Touch *touch);
+    void updateLabelToFinalPosition();
+    void restoreLabelToInitialPosition();
     
     ProgressTimer* _progress;
     ProgressFromTo* _action;

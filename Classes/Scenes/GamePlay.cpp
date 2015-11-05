@@ -62,6 +62,8 @@ bool GamePlay::init()
     _subCategories = _categories.at(GamePlayPointsManager::getInstance()->getCurrentCategory())->getFilteredSubCategoriesByLevel(GamePlayPointsManager::getInstance()->getCurrentDifficulty());
     AppManager::getInstance()->setGamePlayDelegate(this);
     
+    _moveListener = addEvents();
+    
     Rect visibleRect = ScreenSizeManager::getVisibleRect();
     
     auto background = Sprite::create(ImageManager::getImage("background"), visibleRect);
@@ -94,15 +96,6 @@ bool GamePlay::init()
     this->addChild(borderLayer);
     this->addChild(_gameLayer);
 
-    _touchLayer = Layer::create();
-    _touchLayer->setContentSize(gameLayerSize);
-    _gameLayer->addChild(_touchLayer);
-    
-    auto listener = addEvents();
-    Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, _touchLayer);
-    _touchState = TouchState::FINISH;
-    
-    
     auto hudLayer = Layer::create();
     Size hudLayerSize = Size(0, 0);
     hudLayerSize.width = _gameLayer->getBoundingBox().origin.x - 2 * margins;
@@ -345,12 +338,11 @@ bool GamePlay::isValidWord(string word) {
 
 void GamePlay::clearGameLayer()
 {
-    _gameLayer->removeAllChildrenWithCleanup(true);
-//    auto childrens = _gameLayer->getChildren();
-//    for (int i = 0; i < childrens.size(); i++) {
-//        auto children = childrens.at(i);
-//        _gameLayer->removeChild(children);
-//    }
+    auto childrens = _gameLayer->getChildren();
+    for (int i = 0; i < childrens.size(); i++) {
+        auto children = childrens.at(i);
+        _gameLayer->removeChild(children);
+    }
     _currentOption = NULL;
 }
 
@@ -412,20 +404,23 @@ void GamePlay::createGameLayer(Option* option)
         auto position = rand() % name.size();
         auto letter = name.at(position);
         Label* letterLabel = Label::createWithTTF(letter, MainBoldFont, currentLetterFontSize);
+        letterLabel->setTag(position);
+        
         unorderedLetters.pushBack(letterLabel);
         name.erase(name.begin() + position);
     } while (name.size() > 0);
     
-    auto orderedLayer = Layer::create();
-    orderedLayer->setContentSize(Size(totalLayerWidth, currentLetterLayerSize));
-    orderedLayer->ignoreAnchorPointForPosition(false);
-    orderedLayer->setAnchorPoint(Point::ANCHOR_MIDDLE);
-    orderedLayer->setPosition(Vec2(_gameLayer->getBoundingBox().size.width / 2, _gameLayer->getBoundingBox().size.height / 4 - ScreenSizeManager::getHeightFromPercentage(5)));
+     _orderedLayer = Layer::create();
+    _orderedLayer->setContentSize(Size(totalLayerWidth, currentLetterLayerSize));
+    _orderedLayer->ignoreAnchorPointForPosition(false);
+    _orderedLayer->setAnchorPoint(Point::ANCHOR_MIDDLE);
+    _orderedLayer->setPosition(Vec2(_gameLayer->getBoundingBox().size.width / 2, _gameLayer->getBoundingBox().size.height / 4 - ScreenSizeManager::getHeightFromPercentage(5)));
 
     for (int i = 0; i < unorderedLetters.size(); i++) {
         auto layer = LayerColor::create(IkasRed);
+        layer->setTag(i);
         auto inLayer = LayerColor::create(IkasWhite);
-        
+
         layer->setContentSize(Size(currentLetterLayerSize, currentLetterLayerSize));
         inLayer->setContentSize(Size(currentLetterLayerSize - 2 * currentLetterLayerBorderWidth, currentLetterLayerSize - 2 * currentLetterLayerBorderWidth));
         inLayer->setPosition(Vec2(currentLetterLayerBorderWidth, currentLetterLayerBorderWidth));
@@ -433,28 +428,29 @@ void GamePlay::createGameLayer(Option* option)
         layer->setPosition(Vec2(i * currentLetterLayerSize + i * currentLetterLayerMargin, 0));
         
         layer->addChild(inLayer);
-        orderedLayer->addChild(layer);
+        _orderedLayer->addChild(layer);
     }
-    _gameLayer->addChild(orderedLayer);
+    _gameLayer->addChild(_orderedLayer);
     
     //    auto unorderedLayer = LayerColor::create(Color4B(5, 5, 5, 255));
-    auto unorderedLayer = Layer::create();
-    unorderedLayer->setContentSize(Size(totalLayerWidth, currentLetterLayerSize));
-    unorderedLayer->ignoreAnchorPointForPosition(false);
-    unorderedLayer->setAnchorPoint(Point::ANCHOR_MIDDLE_BOTTOM);
-//    unorderedLayer->setPosition(Vec2(_gameLayer->getBoundingBox().size.width / 2, _gameLayer->getBoundingBox().size.height / 4 + ScreenSizeManager::getHeightFromPercentage(5)));
-    unorderedLayer->setPosition(Vec2(_gameLayer->getBoundingBox().size.width / 2, orderedLayer->getBoundingBox().origin.y + orderedLayer->getBoundingBox().size.height + currentLetterLayerMargin));
+     _unorderedLayer = Layer::create();
+    _unorderedLayer->setContentSize(Size(totalLayerWidth, currentLetterLayerSize));
+    _unorderedLayer->ignoreAnchorPointForPosition(false);
+    _unorderedLayer->setAnchorPoint(Point::ANCHOR_MIDDLE_BOTTOM);
+    _unorderedLayer->setPosition(Vec2(_gameLayer->getBoundingBox().size.width / 2, _orderedLayer->getBoundingBox().origin.y + _orderedLayer->getBoundingBox().size.height + currentLetterLayerMargin));
     
 
     for (int i = 0; i < unorderedLetters.size(); i++) {
         auto label = unorderedLetters.at(i);
         auto layer = LayerColor::create(IkasRed);
+        layer->setTag(i);
         auto inLayer = LayerColor::create(IkasWhite);
         
         layer->setContentSize(Size(currentLetterLayerSize, currentLetterLayerSize));
         inLayer->setContentSize(Size(currentLetterLayerSize - 2 * currentLetterLayerBorderWidth, currentLetterLayerSize - 2 * currentLetterLayerBorderWidth));
         inLayer->setPosition(Vec2(currentLetterLayerBorderWidth, currentLetterLayerBorderWidth));
-        label->setContentSize(Size(currentLetterLayerSize - 3 * currentLetterLayerBorderWidth, currentLetterLayerSize - 3 * currentLetterLayerBorderWidth));
+//        label->setContentSize(Size(currentLetterLayerSize - 3 * currentLetterLayerBorderWidth, currentLetterLayerSize - 3 * currentLetterLayerBorderWidth));
+        label->setContentSize(Size(currentLetterLayerSize, currentLetterLayerSize));
         
         label->setAnchorPoint(Point::ANCHOR_MIDDLE);
         label->setPosition(layer->getBoundingBox().size.width / 2, layer->getBoundingBox().size.height / 2);
@@ -465,9 +461,24 @@ void GamePlay::createGameLayer(Option* option)
         
         layer->addChild(inLayer);
         layer->addChild(label);
-        unorderedLayer->addChild(layer);
+        _unorderedLabels.insert(i, label);
+        _unorderedLayer->addChild(layer);
     }
-    _gameLayer->addChild(unorderedLayer);
+    _gameLayer->addChild(_unorderedLayer);
+//    _gameLayer->removeChild(_touchLayer);
+//    _gameLayer->addChild(_touchLayer);
+//    _gameLayer->setZOrder(50);
+    if (_touchLayer != nullptr) {
+//        _touchLayer->removeFromParentAndCleanup(true);
+        Director::getInstance()->getEventDispatcher()->removeEventListener(_moveListener);
+    }
+    
+    _touchLayer = Layer::create();
+    _touchLayer->setContentSize(_gameLayer->getContentSize());
+    _gameLayer->addChild(_touchLayer);
+    
+    Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(_moveListener, _touchLayer);
+    _touchState = TouchState::FINISH;
     
 }
 
@@ -578,14 +589,71 @@ void GamePlay::openSuccessScreen()
     _pauseButton->setVisible(true);
 }
 
+int GamePlay::indexForTouch(Layer *layer, Touch *touch) {
+    int position = -1;
+    for (int i = 0; i < _currentOption->getName().size(); i++) {
+        Vec2 letterLocation = layer->convertTouchToNodeSpace(touch);
+        Layer *letterLayer = (Layer *)layer->getChildByTag(i);
+//        Label *letterLabel = _unorderedLabels.at(i);
+        
+        if (letterLayer != nullptr) {
+            if (letterLayer->getBoundingBox().containsPoint(letterLocation)) {
+                position = i;
+                break;
+            }
+        }
+    }
+    return position;
+}
+
+void GamePlay::startMovingLabel(Touch *touch)
+{
+    auto touchLayerPosition = _touchLayer->convertTouchToNodeSpace(touch);
+    _unorderedLayer->getChildByTag(_initialIndex)->removeChild(_currentLabel);
+    _currentLabel->setPosition(touchLayerPosition);
+    _touchLayer->addChild(_currentLabel);
+}
+
+void GamePlay::updateLabelPosition(Touch *touch)
+{
+    auto newPosition = _touchLayer->convertTouchToNodeSpace(touch);
+    _currentLabel->setPosition(newPosition);
+}
+
+void GamePlay::updateLabelToFinalPosition()
+{
+    _touchLayer->removeChild(_currentLabel);
+    auto letterLayer = _orderedLayer->getChildByTag(_endIndex);
+    _currentLabel->setPosition(letterLayer->getBoundingBox().size.width / 2, letterLayer->getBoundingBox().size.height / 2);
+    letterLayer->addChild(_currentLabel);
+    _orderedLabels.insert(_endIndex, _currentLabel);
+    _currentLabel->setTag(-1);//Invalidate letter
+}
+
+void GamePlay::restoreLabelToInitialPosition()
+{
+    _touchLayer->removeChild(_currentLabel);
+    _currentLabel->setPosition(_initialPosition);
+    _unorderedLayer->getChildByTag(_initialIndex)->addChild(_currentLabel);
+}
+
 bool GamePlay::touchBegan(Touch *touch, Event *pEvent)
 {
     if (_touchState != TouchState::FINISH) {
         return false;
     }
-    
-    Vec2 touchLocation = _touchLayer->convertTouchToNodeSpace(touch);
+    int position = indexForTouch(_unorderedLayer, touch);
+    if (position == -1) {
+        return false;
+    } else if (_unorderedLabels.at(position)->getTag() == -1) {
+        return false;
+    }
     _touchState = TouchState::START;
+    _initialIndex = position;
+    _currentLabel = _unorderedLabels.at(position);
+    _initialPosition = _currentLabel->getPosition();
+    
+    startMovingLabel(touch);
     return true;
 }
 
@@ -594,9 +662,28 @@ void GamePlay::touchEnded(Touch *touch, Event *pEvent)
     if (_touchState == TouchState::FINISH) {
         return;
     }
-    
-    Vec2 touchLocation = _touchLayer->convertTouchToNodeSpace(touch);
     _touchState = TouchState::FINISH;
+    
+    int position = indexForTouch(_orderedLayer, touch);
+    if (position == -1) {
+        restoreLabelToInitialPosition();
+        return;
+    }
+    _endIndex = position;
+    auto letter = _unorderedLabels.at(_initialIndex)->getString();
+    string neededLetter(1, toupper(_currentOption->getName().at(_endIndex)));
+    
+    auto currentLabelInOrderedLayer = _orderedLabels.at(_endIndex);
+    if (_unorderedLabels.at(_initialIndex)->getTag() == -1) {//Check in touchBegan
+        log("Letra ya movida con anterioridad");
+    } else if (currentLabelInOrderedLayer != nullptr) {
+        restoreLabelToInitialPosition();
+    } else if (letter == neededLetter) {
+        updateLabelToFinalPosition();
+    } else {
+        log("MAL!!!");
+        restoreLabelToInitialPosition();
+    }
 }
 
 void GamePlay::touchMoved(Touch *touch, Event *pEvent)
@@ -604,12 +691,13 @@ void GamePlay::touchMoved(Touch *touch, Event *pEvent)
     if (_touchState == TouchState::FINISH) {
         return;
     }
-    
-    Vec2 touchLocation = _touchLayer->convertTouchToNodeSpace(touch);
     _touchState = TouchState::MOVING;
+    updateLabelPosition(touch);
+//    _gameLayerEndTouch = touch;
 }
 
-void GamePlay::touchCancelled(Touch *pTouch, Event *pEvent)
+void GamePlay::touchCancelled(Touch *touch, Event *pEvent)
 {
     _touchState = TouchState::FINISH;
+    restoreLabelToInitialPosition();
 }
