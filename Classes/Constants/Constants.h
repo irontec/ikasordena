@@ -59,6 +59,9 @@ static cocos2d::Color4B IkasGrayLight = cocos2d::Color4B(173, 173, 173, 255);
 static cocos2d::Color4B IkasGrayDark = cocos2d::Color4B(87, 87, 87, 255);
 static cocos2d::Color4B IkasPinkAlpha = cocos2d::Color4B(231, 58, 82, 130);
 
+static cocos2d::Color4B IkasSuccess = cocos2d::Color4B(32, 155, 49, 255);
+static cocos2d::Color4B IkasError = cocos2d::Color4B(183, 7, 0, 255);
+
 /**
  * Different scenes used
  */

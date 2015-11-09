@@ -69,6 +69,7 @@ private:
 
     
     Layer *_unorderedLayer, *_orderedLayer;
+    LayerColor *_resultLayer;
     Map<int, Label*> _unorderedLabels, _orderedLabels;
 
     Value _currentLives, _totalFails;
@@ -85,6 +86,8 @@ private:
     void updateLabelPosition(Touch *touch);
     void updateLabelToFinalPosition();
     void restoreLabelToInitialPosition();
+    
+    void showDragResult(bool success);
     
     ProgressTimer* _progress;
     ProgressFromTo* _action;

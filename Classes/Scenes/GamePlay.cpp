@@ -423,7 +423,7 @@ void GamePlay::createGameLayer(Option* option)
         auto layer = LayerColor::create(IkasRed);
         layer->setTag(i);
         auto inLayer = LayerColor::create(IkasWhite);
-
+        inLayer->setTag(5151);
         layer->setContentSize(Size(currentLetterLayerSize, currentLetterLayerSize));
         inLayer->setContentSize(Size(currentLetterLayerSize - 2 * currentLetterLayerBorderWidth, currentLetterLayerSize - 2 * currentLetterLayerBorderWidth));
         inLayer->setPosition(Vec2(currentLetterLayerBorderWidth, currentLetterLayerBorderWidth));
@@ -648,6 +648,7 @@ void GamePlay::startMovingLabel(Touch *touch)
     _unorderedLayer->getChildByTag(_initialIndex)->removeChild(_currentLabel);
     _currentLabel->setPosition(touchLayerPosition);
     _touchLayer->addChild(_currentLabel);
+    _currentLabel->setScale(1.30);
 }
 
 void GamePlay::updateLabelPosition(Touch *touch)
@@ -671,6 +672,35 @@ void GamePlay::restoreLabelToInitialPosition()
     _touchLayer->removeChild(_currentLabel);
     _currentLabel->setPosition(_initialPosition);
     _unorderedLayer->getChildByTag(_initialIndex)->addChild(_currentLabel);
+}
+
+void GamePlay::showDragResult(bool success)
+{
+    _currentLabel->setScale(1);
+    
+    auto labelLayer = _orderedLayer->getChildByTag(_endIndex);
+    auto colorInLayer = labelLayer->getChildByTag(5151);
+    
+    if (success) {
+        _resultLayer = LayerColor::create(IkasSuccess);
+    } else {
+        _resultLayer = LayerColor::create(IkasError);
+    }
+    _resultLayer->setContentSize(colorInLayer->getContentSize());
+    _resultLayer->setPosition(colorInLayer->getPosition());
+    
+    _resultLayer->setOpacity(1.0);
+    
+    labelLayer->addChild(_resultLayer);
+    auto fadeIn = FadeTo::create(0.2, 150);
+    auto fadeOut = FadeTo::create(0.15, 0);
+    
+    auto cleanCallback = CallFunc::create([&](){
+        _resultLayer->removeFromParentAndCleanup(true);
+        _resultLayer = NULL;
+    });
+    Sequence *sequence = Sequence::create(fadeIn, fadeOut, cleanCallback, NULL);
+    _resultLayer->runAction(sequence);
 }
 
 bool GamePlay::touchBegan(Touch *touch, Event *pEvent)
@@ -710,19 +740,31 @@ void GamePlay::touchEnded(Touch *touch, Event *pEvent)
     string neededLetter(1, toupper(_currentOption->getName().at(_endIndex)));
     
     auto currentLabelInOrderedLayer = _orderedLabels.at(_endIndex);
-    if (_unorderedLabels.at(_initialIndex)->getTag() == -1) {//Check in touchBegan
+    
+       if (_unorderedLabels.at(_initialIndex)->getTag() == -1) {//Check in touchBegan
         log("Letra ya movida con anterioridad");
     } else if (currentLabelInOrderedLayer != nullptr) {
         restoreLabelToInitialPosition();
     } else if (letter == neededLetter) {
         SoundManager::getInstance()->successPlay();
+        showDragResult(true);
         updateLabelToFinalPosition();
     } else {
-        log("MAL!!!");
         SoundManager::getInstance()->failurePlay();
+        
+        auto restoreCallback = CallFunc::create([&](){
+            restoreLabelToInitialPosition();
+        });
+        auto showDragResultCallback = CallFunc::create([&]() {
+            showDragResult(false);
+        });
+        auto delay = FadeTo::create(0.2, _currentLabel->getOpacity());
+
+        auto actionMoveSequence = Sequence::create(showDragResultCallback, delay, restoreCallback, NULL);
+        _currentLabel->runAction(actionMoveSequence);
+        
         _totalFails = _totalFails.asInt() + 1;
         _currentLives = _currentLives.asInt() - 1;
-        restoreLabelToInitialPosition();
         updateLivesView();
     }
     checkGameStatus();
@@ -735,7 +777,6 @@ void GamePlay::touchMoved(Touch *touch, Event *pEvent)
     }
     _touchState = TouchState::MOVING;
     updateLabelPosition(touch);
-//    _gameLayerEndTouch = touch;
 }
 
 void GamePlay::touchCancelled(Touch *touch, Event *pEvent)
