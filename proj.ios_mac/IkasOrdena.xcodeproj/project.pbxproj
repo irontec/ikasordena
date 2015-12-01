@@ -17,6 +17,8 @@
 		503AE10217EB989F00D1A890 /* RootViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 503AE0FF17EB989F00D1A890 /* RootViewController.mm */; };
 		52B47A471A53D09C004E4C60 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52B47A461A53D09B004E4C60 /* Security.framework */; };
 		9D13375F1AA450920058008C /* About.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D13375D1AA450920058008C /* About.cpp */; };
+		9D5C1CB81C0D8ACF002AD9D3 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D5C1CB61C0D8ACF002AD9D3 /* Fabric.framework */; };
+		9D5C1CB91C0D8ACF002AD9D3 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D5C1CB71C0D8ACF002AD9D3 /* Crashlytics.framework */; };
 		9D7C154A1BE91D6B0096D02D /* Ranking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D7C15481BE91D6B0096D02D /* Ranking.cpp */; };
 		9D816FE11BE8D33500280889 /* AppleDownloader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9D816FE01BE8D33500280889 /* AppleDownloader.mm */; };
 		9D816FE31BE8D76C00280889 /* ikasordena-563774185acd0.zip in Resources */ = {isa = PBXBuildFile; fileRef = 9D816FE21BE8D76C00280889 /* ikasordena-563774185acd0.zip */; };
@@ -133,6 +135,8 @@
 		52B47A461A53D09B004E4C60 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
 		9D13375D1AA450920058008C /* About.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = About.cpp; sourceTree = "<group>"; };
 		9D13375E1AA450920058008C /* About.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = About.h; sourceTree = "<group>"; };
+		9D5C1CB61C0D8ACF002AD9D3 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
+		9D5C1CB71C0D8ACF002AD9D3 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		9D7C15481BE91D6B0096D02D /* Ranking.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Ranking.cpp; sourceTree = "<group>"; };
 		9D7C15491BE91D6B0096D02D /* Ranking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ranking.h; sourceTree = "<group>"; };
 		9D7C154B1BE91DF70096D02D /* RankingData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RankingData.h; sourceTree = "<group>"; };
@@ -223,10 +227,12 @@
 				9D8FB4C11A9E3507005D27F5 /* Social.framework in Frameworks */,
 				9D8FB4BF1A9E34FE005D27F5 /* MessageUI.framework in Frameworks */,
 				9D8FB4BD1A9E34ED005D27F5 /* SystemConfiguration.framework in Frameworks */,
+				9D5C1CB81C0D8ACF002AD9D3 /* Fabric.framework in Frameworks */,
 				52B47A471A53D09C004E4C60 /* Security.framework in Frameworks */,
 				1AC6FB30180E99EB004C840B /* libcocos2d iOS.a in Frameworks */,
 				D6B0611B1803AB670077942B /* CoreMotion.framework in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
+				9D5C1CB91C0D8ACF002AD9D3 /* Crashlytics.framework in Frameworks */,
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
 				288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */,
 				BF171245129291EC00B8313A /* OpenGLES.framework in Frameworks */,
@@ -276,6 +282,8 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				9D5C1CB61C0D8ACF002AD9D3 /* Fabric.framework */,
+				9D5C1CB71C0D8ACF002AD9D3 /* Crashlytics.framework */,
 				46880B8319C43A87006E1F66 /* Classes */,
 				46880B7519C43A67006E1F66 /* Resources */,
 				1AC6FAE5180E9839004C840B /* cocos2d_libs.xcodeproj */,
@@ -516,6 +524,7 @@
 				1D60588D0D05DD3D006BFB54 /* Resources */,
 				1D60588E0D05DD3D006BFB54 /* Sources */,
 				1D60588F0D05DD3D006BFB54 /* Frameworks */,
+				9D5C1CB41C0D8A06002AD9D3 /* Fabric */,
 			);
 			buildRules = (
 			);
@@ -598,6 +607,23 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		9D5C1CB41C0D8A06002AD9D3 /* Fabric */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = Fabric;
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./Fabric.framework/run 332ab2f97d4a298c73332ea5b0f65e610538211a 03a6ff002165a2169290dea6c83e90e71e6bc936a6763c776a783d7ae89636f5\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		1D60588E0D05DD3D006BFB54 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -659,6 +685,10 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer: Jabi Infante (HPMP8PQKPY)";
 				COMPRESS_PNG_FILES = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -698,6 +728,10 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: IRONTEC INTERNET Y SISTEMAS SOBRE GNU LINUX SL (LTJP6FZ4XB)";
 				COMPRESS_PNG_FILES = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = ios/Prefix.pch;

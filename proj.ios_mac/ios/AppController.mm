@@ -27,6 +27,7 @@
 #import "cocos2d.h"
 #import "AppDelegate.h"
 #import "RootViewController.h"
+#import "../../Classes/Helpers/AppleHelper.h"
 
 @implementation AppController
 
@@ -86,6 +87,7 @@ static AppDelegate s_sharedApplication;
 
     app->run();
 
+    AppleHelper::startCrashlytics();
     return YES;
 }
 

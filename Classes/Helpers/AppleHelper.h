@@ -19,6 +19,7 @@ using namespace cocos2d;
 class AppleHelper
 {
 public:
+    static void startCrashlytics();
     static void ignorePathFromiCloud(std::string path , bool isDir, bool ignore);
     static void downloadZip(std::string zipURL, std::string zipPath, const IkasEmptyHandler successCallback, const IkasEmptyHandler errorCallback, const IkasValueHandler progressCallback);
 };

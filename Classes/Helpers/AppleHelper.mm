@@ -8,7 +8,13 @@
 
 #include "AppleHelper.h"
 #include "AppleDownloader.h"
+#include <Fabric/Fabric.h>
+#include <Crashlytics/Crashlytics.h>
 
+void AppleHelper::startCrashlytics()
+{
+    [Fabric with:@[[Crashlytics class]]];
+}
 
 void AppleHelper::ignorePathFromiCloud(std::string path , bool isDir, bool ignore)
 {
