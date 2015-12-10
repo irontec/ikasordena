@@ -52,7 +52,7 @@ bool Pause::init()
     auto labelResume = Label::createWithTTF(LanguageManager::getLocalizedText("Pause", "resume"), MainRegularFont, 130);
     labelResume->setAlignment(TextHAlignment::CENTER);
     labelResume->setAnchorPoint(Point::ANCHOR_MIDDLE_TOP);
-    labelResume->setTextColor(IkasGrayDark);
+    labelResume->setTextColor(IkasPurple);
     Vec2 positionLabelResume = buttonResume->getPosition();
     positionLabelResume.y -= buttonResume->getBoundingBox().size.height/2;
     positionLabelResume.y -= ScreenSizeManager::getHeightFromPercentage(10);

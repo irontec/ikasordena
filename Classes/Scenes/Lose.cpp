@@ -71,7 +71,7 @@ bool Lose::init()
     auto labelPointsValue = Label::createWithTTF(totalPoints.str(), MainRegularFont, 75);
     labelPointsValue->setAlignment(TextHAlignment::CENTER);
     labelPointsValue->setAnchorPoint(Point::ANCHOR_MIDDLE);
-    labelPointsValue->setTextColor(IkasGrayDark);
+    labelPointsValue->setTextColor(IkasPurpleLight);
     Vec2 positionLabelPointsValue = buttonNextGamePlay->getPosition();
     positionLabelPointsValue.y += buttonNextGamePlay->getBoundingBox().size.height / 2;
     positionLabelPointsValue.y += labelPointsValue->getBoundingBox().size.height / 2;
@@ -82,7 +82,7 @@ bool Lose::init()
     auto labelPointsTitle = Label::createWithTTF(LanguageManager::getLocalizedText("Lose", "points-title"), MainRegularFont, 75);
     labelPointsTitle->setAlignment(TextHAlignment::CENTER);
     labelPointsTitle->setAnchorPoint(Point::ANCHOR_MIDDLE);
-    labelPointsTitle->setTextColor(IkasGrayDark);
+    labelPointsTitle->setTextColor(IkasPurpleLight);
     Vec2 positionLabelPointsTitle = labelPointsValue->getPosition();
     positionLabelPointsTitle.y += labelPointsValue->getBoundingBox().size.height / 2;
     positionLabelPointsTitle.y += labelPointsTitle->getBoundingBox().size.height / 2;
@@ -93,7 +93,7 @@ bool Lose::init()
     auto labelTitle = Label::createWithTTF(LanguageManager::getLocalizedText("Lose", "title"), MainRegularFont, 90);
     labelTitle->setAlignment(TextHAlignment::CENTER);
     labelTitle->setAnchorPoint(Point::ANCHOR_MIDDLE);
-    labelTitle->setTextColor(IkasPink);
+    labelTitle->setTextColor(IkasPurple);
     Vec2 positionLabelTitle = labelPointsTitle->getPosition();
     positionLabelTitle.y += labelPointsTitle->getBoundingBox().size.height / 2;
     positionLabelTitle.y += labelTitle->getBoundingBox().size.height / 2;
@@ -125,10 +125,10 @@ bool Lose::init()
     _usernameBox->setPosition(usernamePosition);
     _usernameBox->setFontName(MainRegularFont.c_str());
     _usernameBox->setFontSize(100);
-    _usernameBox->setFontColor(Color3B(IkasRed));
+    _usernameBox->setFontColor(Color3B(IkasPurpleLight));
     _usernameBox->setPlaceHolder(LanguageManager::getLocalizedText("Lose", "name").c_str());
     _usernameBox->setPlaceholderFontSize(20);
-    _usernameBox->setPlaceholderFontColor(Color3B(IkasRed));
+    _usernameBox->setPlaceholderFontColor(Color3B(IkasPurple));
     _usernameBox->setMaxLength(3);
     _usernameBox->setReturnType(ui::EditBox::KeyboardReturnType::DONE);
     resultLayer->addChild(_usernameBox);
@@ -140,6 +140,7 @@ bool Lose::init()
     
     auto sendPointsLabel = Label::createWithTTF(LanguageManager::getLocalizedText("Lose", "sendPoints"), MainRegularFont, 30);
     sendPointsLabel->setPosition(_sendPointsButton->getPositionX()/2, _sendPointsButton->getPositionY()/2);
+    sendPointsLabel->setTextColor(IkasPurpleLight);
     Vec2 sendPointsLabelPosition = _sendPointsButton->getPosition();
     sendPointsLabel->setPosition(sendPointsLabelPosition);
     resultLayer->addChild(sendPointsLabel, 10);

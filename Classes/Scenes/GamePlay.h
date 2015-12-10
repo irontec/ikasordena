@@ -59,12 +59,14 @@ private:
     
     void clearGameLayer();
     void createGameLayer(Option* option);
+    DrawNode* createCircleLayer(Vec2 anchorPoint,  Vec2 position, Size size, Color4F color);
     
     void setupLevelSettings();
     void resetTimer();
     void pauseGame(Ref* sender);
 
-    Label *_labelCategory, *_labelPoints, *_labelLevel;
+    Label *_labelCategory, *_labelPoints;//, *_labelLevel;
+    Layer *_starsLayer;
     Layer *_gameLayer, *_touchLayer;
 
     

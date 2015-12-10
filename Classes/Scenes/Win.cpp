@@ -62,7 +62,7 @@ bool Win::init()
     auto labelResume = Label::createWithTTF(LanguageManager::getLocalizedText("Win", "resume"), MainRegularFont, 70);
     labelResume->setAlignment(TextHAlignment::CENTER);
     labelResume->setAnchorPoint(Point::ANCHOR_MIDDLE_TOP);
-    labelResume->setTextColor(IkasGrayDark);
+    labelResume->setTextColor(IkasPurple);
     Vec2 positionLabelResume = buttonNextGamePlay->getPosition();
     positionLabelResume.y -= buttonNextGamePlay->getBoundingBox().size.height / 2;
     positionLabelResume.y -= ScreenSizeManager::getHeightFromPercentage(1);

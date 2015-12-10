@@ -168,7 +168,7 @@ bool Level::init()
     labelEasyLevel->setAnchorPoint(Point::ANCHOR_MIDDLE_BOTTOM);
     labelEasyLevel->setAlignment(TextHAlignment::CENTER);
     labelEasyLevel->setTag(123);
-    labelEasyLevel->setTextColor(IkasGrayDark);
+    labelEasyLevel->setTextColor(IkasPurpleLight);
     layerEasyLevel->addChild(labelEasyLevel);
     
     // Medium level
@@ -196,7 +196,7 @@ bool Level::init()
     labelMediumLevel->setAnchorPoint(Point::ANCHOR_MIDDLE_BOTTOM);
     labelMediumLevel->setAlignment(TextHAlignment::CENTER);
     labelMediumLevel->setTag(123);
-    labelMediumLevel->setTextColor(IkasGrayDark);
+    labelMediumLevel->setTextColor(IkasPurpleLight);
     layerMediumLevel->addChild(labelMediumLevel);
     
     // Hard level
@@ -224,7 +224,7 @@ bool Level::init()
     labelHardLevel->setAnchorPoint(Point::ANCHOR_MIDDLE_BOTTOM);
     labelHardLevel->setAlignment(TextHAlignment::CENTER);
     labelHardLevel->setTag(123);
-    labelHardLevel->setTextColor(IkasGrayDark);
+    labelHardLevel->setTextColor(IkasPurpleLight);
     layerHardLevel->addChild(labelHardLevel);
     
     layerCategories->addChild(layerDifficultyButtons);
@@ -232,7 +232,7 @@ bool Level::init()
     auto labelDifficultyTitle = Label::createWithTTF(LanguageManager::getLocalizedText("Level", "title"), MainRegularFont, 70);
     labelDifficultyTitle->setAlignment(TextHAlignment::CENTER);
     labelDifficultyTitle->setAnchorPoint(Point::ANCHOR_MIDDLE_BOTTOM);
-    labelDifficultyTitle->setTextColor(IkasGrayDark);
+    labelDifficultyTitle->setTextColor(IkasPurple);
     Vec2 positionLabelTitle = layerDifficultyButtons->getPosition();
     positionLabelTitle.x += layerDifficultyButtons->getBoundingBox().size.width/2;
     positionLabelTitle.y += layerDifficultyButtons->getBoundingBox().size.height;

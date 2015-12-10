@@ -117,7 +117,7 @@ bool Categories::init()
     auto labelCategoriesTitle = Label::createWithTTF(LanguageManager::getLocalizedText("Categories", "title"), MainRegularFont, 70);
     labelCategoriesTitle->setAlignment(TextHAlignment::CENTER);
     labelCategoriesTitle->setAnchorPoint(Point::ANCHOR_MIDDLE_BOTTOM);
-    labelCategoriesTitle->setTextColor(IkasGrayDark);
+    labelCategoriesTitle->setTextColor(IkasPurple);
     Vec2 positionLabelTableView = tableViewCategories->getPosition();
     positionLabelTableView.x += tableViewCategories->getBoundingBox().size.width/2;
     positionLabelTableView.y += tableViewCategories->getBoundingBox().size.height;
@@ -222,13 +222,13 @@ PagingTableViewCell* Categories::tableCellAtIndex(PagingTableView *table, ssize_
     
     Size labelSize = itemSize;
     labelSize.height = labelSize.height * (1 - TableViewItemImageHeightPercentage/100 - TableViewItemImageTitleSeparationPercentage/100);
-    auto label = Label::createWithTTF(string->getCString(), MainRegularFont, 70.0);
+    auto label = Label::createWithTTF(string->getCString(), MainRegularFont, 60.0);
     label->setContentSize(labelSize);
     label->setPosition(Vec2(itemSize.width/2, 0));
     label->setAnchorPoint(Point::ANCHOR_MIDDLE_BOTTOM);
     label->setAlignment(TextHAlignment::CENTER);
     label->setTag(123);
-    label->setTextColor(IkasRed);
+    label->setTextColor(IkasPurpleLight);
     cell->addChild(label);
 
     return cell;

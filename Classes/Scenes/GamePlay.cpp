@@ -27,13 +27,13 @@ const Value SuccessTime = Value(1.5);
 const Value MaxLetters = Value(15);
 const Value MaxLives = Value(6);
 const Value LetterLayerSize = Value(140);
-const Value LetterFontSizeLayerRelation = Value(0.85);
+const Value LetterFontSizeLayerRelation = Value(0.75);
 const Value LetterFontSize = Value(LetterLayerSize.asFloat() * LetterFontSizeLayerRelation.asFloat());
 const Value LetterLayerMargin = Value(10);
-const Value LetterLayerBorderWidth = Value(8);
+const Value LetterLayerBorderWidth = Value(4);
 
 const float GameLayerBorderWidth = 2;
-const Color4B GameLayerBorderColor = IkasGrayLight;
+const Color4B GameLayerBorderColor = IkasYellow;
 
 Scene* GamePlay::createScene()
 {
@@ -116,14 +116,14 @@ bool GamePlay::init()
     labelTitleCategory->setWidth(miniLayerSizes.width);
     labelTitleCategory->setAnchorPoint(Point::ANCHOR_TOP_LEFT);
     labelTitleCategory->setVerticalAlignment(TextVAlignment::BOTTOM);
-    labelTitleCategory->setTextColor(IkasGrayDark);
+    labelTitleCategory->setTextColor(IkasPurple);
     layerCategory->addChild(labelTitleCategory);
     
     _labelCategory = Label::createWithTTF("0", MainBoldFont, 50);
     _labelCategory->setWidth(miniLayerSizes.width);
     _labelCategory->setAnchorPoint(Point::ANCHOR_BOTTOM_LEFT);
     _labelCategory->setVerticalAlignment(TextVAlignment::TOP);
-    _labelCategory->setTextColor(IkasRed);
+    _labelCategory->setTextColor(IkasYellow);
     layerCategory->addChild(_labelCategory);
     
     miniLayerSizes.height = labelTitleCategory->getContentSize().height + _labelCategory->getContentSize().height;
@@ -142,21 +142,27 @@ bool GamePlay::init()
     labelTitleLevel->setWidth(miniLayerSizes.width);
     labelTitleLevel->setAnchorPoint(Point::ANCHOR_TOP_LEFT);
     labelTitleLevel->setVerticalAlignment(TextVAlignment::BOTTOM);
-    labelTitleLevel->setTextColor(IkasGrayDark);
+    labelTitleLevel->setTextColor(IkasPurple);
     layerLevel->addChild(labelTitleLevel);
     
-    _labelLevel = Label::createWithTTF("0", MainBoldFont, 50);
-    _labelLevel->setWidth(miniLayerSizes.width);
-    _labelLevel->setAnchorPoint(Point::ANCHOR_BOTTOM_LEFT);
-    _labelLevel->setVerticalAlignment(TextVAlignment::TOP);
-    _labelLevel->setTextColor(IkasRed);
-    layerLevel->addChild(_labelLevel);
+    _starsLayer = Layer::create();
+    _starsLayer->setPosition(0, 0);
+    _starsLayer->setContentSize(Size(miniLayerSizes.width, miniLayerSizes.height - labelTitleLevel->getBoundingBox().size.height));
+    layerLevel->addChild(_starsLayer);
     
-    miniLayerSizes.height = labelTitleLevel->getContentSize().height + _labelLevel->getContentSize().height;
+//    _labelLevel = Label::createWithTTF("0", MainBoldFont, 50);
+//    _labelLevel->setWidth(miniLayerSizes.width);
+//    _labelLevel->setAnchorPoint(Point::ANCHOR_BOTTOM_LEFT);
+//    _labelLevel->setVerticalAlignment(TextVAlignment::TOP);
+//    _labelLevel->setTextColor(IkasYellow);
+//    layerLevel->addChild(_labelLevel);
+    
+//    miniLayerSizes.height = labelTitleLevel->getContentSize().height + _labelLevel->getContentSize().height;
+    miniLayerSizes.height = labelTitleLevel->getContentSize().height + _starsLayer->getContentSize().height;
     layerLevel->setContentSize(miniLayerSizes);
     
     labelTitleLevel->setPosition(0, layerLevel->getBoundingBox().size.height);
-    _labelLevel->setPosition(0, 0);
+//    _labelLevel->setPosition(0, 0);
     
     hudLayer->addChild(layerLevel);
     
@@ -168,14 +174,14 @@ bool GamePlay::init()
     labelTitlePoints->setWidth(miniLayerSizes.width);
     labelTitlePoints->setAnchorPoint(Point::ANCHOR_TOP_LEFT);
     labelTitlePoints->setVerticalAlignment(TextVAlignment::BOTTOM);
-    labelTitlePoints->setTextColor(IkasGrayDark);
+    labelTitlePoints->setTextColor(IkasPurple);
     layerPoints->addChild(labelTitlePoints);
     
     _labelPoints = Label::createWithTTF("0", MainBoldFont, 50);
     _labelPoints->setWidth(miniLayerSizes.width);
     _labelPoints->setAnchorPoint(Point::ANCHOR_BOTTOM_LEFT);
     _labelPoints->setVerticalAlignment(TextVAlignment::TOP);
-    _labelPoints->setTextColor(IkasRed);
+    _labelPoints->setTextColor(IkasYellow);
     layerPoints->addChild(_labelPoints);
     
     miniLayerSizes.height = labelTitlePoints->getContentSize().height + _labelPoints->getContentSize().height;
@@ -198,6 +204,13 @@ bool GamePlay::init()
     Vec2 centerPos = Vec2(hudLayer->getBoundingBox().size.width / 2, hudLayer->getBoundingBox().size.height * 0.85);
     timerBackground->setPosition(centerPos);
     
+    Sprite* timerBorder = Sprite::create(ImageManager::getImage("timer-border"));
+    timerBorder->setScale(timerBackground->getScale());
+    timerBorder->setAnchorPoint(Point::ANCHOR_MIDDLE);
+    Vec2 borderCenterPos = Vec2(hudLayer->getBoundingBox().size.width / 2, hudLayer->getBoundingBox().size.height * 0.85);
+    timerBorder->setPosition(borderCenterPos);
+
+    
     Sprite* timer = Sprite::create(ImageManager::getImage("timer-in"));
     
     _progress = ProgressTimer::create(timer);
@@ -207,6 +220,7 @@ bool GamePlay::init()
     
     hudLayer->addChild(timerBackground);
     hudLayer->addChild(_progress);
+    hudLayer->addChild(timerBorder);
     
     _progress->setType(ProgressTimer::Type::RADIAL);
     _progress->setMidpoint(Point::ANCHOR_MIDDLE);
@@ -375,6 +389,24 @@ void GamePlay::createGameLayer(Option* option)
     _gameLayer->addChild(optionImage);
     
     
+//    DrawNode *circle = DrawNode::create();
+//    circle->setAnchorPoint(optionImage->getAnchorPoint());
+//    circle->setPosition(optionImage->getPosition());
+//    Size visibleSize = optionImage->getBoundingBox().size;
+//    
+//    int radius = visibleSize.width / 2;
+//    //Border
+////    float angle = CC_DEGREES_TO_RADIANS(360);
+////    int segments = 360;
+////    circle->drawCircle(Vec2(visibleSize.width / 2,visibleSize.height / 2), radius, angle, segments, false, Color4F(10, 10, 10, 150));
+//    
+//    //Complete
+//    for (float angle = 0; angle <= 2 * M_PI; angle += 0.005)
+//    {
+//        circle->drawSegment(Point(0.0, 0.0), Point(radius * cos(angle), radius * sin(angle)), 1, Color4F(1.0, 0.0, 0.0, 1.0));
+//    }
+//    _gameLayer->addChild(circle);
+    
     float currentLetterLayerSize = LetterLayerSize.asFloat();
     float currentLetterFontSize = LetterFontSize.asFloat();
     float currentLetterLayerMargin = LetterLayerMargin.asFloat();
@@ -406,7 +438,7 @@ void GamePlay::createGameLayer(Option* option)
     do {
         auto position = rand() % name.size();
         auto letter = name.at(position);
-        Label* letterLabel = Label::createWithTTF(letter, MainBoldFont, currentLetterFontSize);
+        Label* letterLabel = Label::createWithTTF(letter, MainRegularFont, currentLetterFontSize);
         letterLabel->setTag(position);
         
         unorderedLetters.pushBack(letterLabel);
@@ -420,7 +452,7 @@ void GamePlay::createGameLayer(Option* option)
     _orderedLayer->setPosition(Vec2(_gameLayer->getBoundingBox().size.width / 2, _gameLayer->getBoundingBox().size.height / 4 - ScreenSizeManager::getHeightFromPercentage(5)));
 
     for (int i = 0; i < unorderedLetters.size(); i++) {
-        auto layer = LayerColor::create(IkasRed);
+        auto layer = LayerColor::create(IkasYellowLight);
         layer->setTag(i);
         auto inLayer = LayerColor::create(IkasWhite);
         inLayer->setTag(5151);
@@ -444,21 +476,25 @@ void GamePlay::createGameLayer(Option* option)
     
     for (int i = 0; i < unorderedLetters.size(); i++) {
         auto label = unorderedLetters.at(i);
-        auto layer = LayerColor::create(IkasRed);
+        auto layer = LayerColor::create(IkasYellowLight);
+//        auto layer = createCircleLayer(Point::ANCHOR_BOTTOM_LEFT, Vec2(i * currentLetterLayerSize + i * currentLetterLayerMargin, 0), Size(currentLetterLayerSize, currentLetterLayerSize), Color4F(IkasYellowLight));
+        
         layer->setTag(i);
-        auto inLayer = LayerColor::create(IkasWhite);
+                auto inLayer = LayerColor::create(IkasYellowLight);
+//        auto inLayer = createCircleLayer(Point::ANCHOR_BOTTOM_LEFT, Vec2(currentLetterLayerBorderWidth, currentLetterLayerBorderWidth), Size(currentLetterLayerSize - 2 * currentLetterLayerBorderWidth, currentLetterLayerSize - 2 * currentLetterLayerBorderWidth), Color4F(IkasYellowLight));
         
         layer->setContentSize(Size(currentLetterLayerSize, currentLetterLayerSize));
+        layer->setPosition(Vec2(i * currentLetterLayerSize + i * currentLetterLayerMargin, 0));
+        
         inLayer->setContentSize(Size(currentLetterLayerSize - 2 * currentLetterLayerBorderWidth, currentLetterLayerSize - 2 * currentLetterLayerBorderWidth));
         inLayer->setPosition(Vec2(currentLetterLayerBorderWidth, currentLetterLayerBorderWidth));
-        label->setContentSize(Size(currentLetterLayerSize, currentLetterLayerSize));
+        label->setContentSize(Size(currentLetterLayerSize - 10, currentLetterLayerSize - 10));
         
         label->setAnchorPoint(Point::ANCHOR_MIDDLE);
         label->setPosition(layer->getBoundingBox().size.width / 2, layer->getBoundingBox().size.height / 2);
         
-        label->setColor(Color3B(IkasRed));
+        label->setColor(Color3B(IkasPurple));
         
-        layer->setPosition(Vec2(i * currentLetterLayerSize + i * currentLetterLayerMargin, 0));
         
         layer->addChild(inLayer);
         layer->addChild(label);
@@ -477,6 +513,28 @@ void GamePlay::createGameLayer(Option* option)
     Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(_moveListener, _touchLayer);
     _touchState = TouchState::FINISH;
     
+}
+
+DrawNode* GamePlay::createCircleLayer(Vec2 anchorPoint,  Vec2 position, Size size, Color4F color) {
+    
+    DrawNode *circle = DrawNode::create();
+    circle->setAnchorPoint(anchorPoint);
+    circle->setPosition(position);
+    Size visibleSize = size;
+    
+    int radius = visibleSize.width / 2;
+    //Border
+    //    float angle = CC_DEGREES_TO_RADIANS(360);
+    //    int segments = 360;
+    //    circle->drawCircle(Vec2(visibleSize.width / 2,visibleSize.height / 2), radius, angle, segments, false, Color4F(10, 10, 10, 150));
+    
+    //Complete
+    for (float angle = 0; angle <= 2 * M_PI; angle += 0.001)
+    {
+        circle->drawSegment(Point(0.0, 0.0), Point(radius * cos(angle), radius * sin(angle)), 1, color);
+    }
+    return circle;
+//    _gameLayer->addChild(circle);
 }
 
 void GamePlay::updateLivesView()
@@ -507,22 +565,48 @@ void GamePlay::timeElapsed()
 void GamePlay::updateScreenGameStats()
 {
     Difficulty difficulty = GamePlayPointsManager::getInstance()->getCurrentDifficulty();
-    std::string levelString = "";
+//    std::string levelString = "";
+    int stars = 0;
     switch (difficulty) {
         case Difficulty::EASY:
-            levelString = LanguageManager::getLocalizedText("Level", "easy");
+            stars = 1;
+//            levelString = LanguageManager::getLocalizedText("Level", "easy");
             break;
         case Difficulty::MEDIUM:
-            levelString = LanguageManager::getLocalizedText("Level", "medium");
+            stars = 2;
+//            levelString = LanguageManager::getLocalizedText("Level", "medium");
             break;
         case Difficulty::HARD:
-            levelString = LanguageManager::getLocalizedText("Level", "hard");
+            stars = 3;
+//            levelString = LanguageManager::getLocalizedText("Level", "hard");
             break;
         default:
             break;
     }
+//    _labelLevel->setString(levelString);
     
-    _labelLevel->setString(levelString);
+
+
+    auto currentStars = _starsLayer->getChildren();
+    for (int i = 0; i < currentStars.size(); i++) {
+        auto starToRemove = currentStars.at(i);
+        starToRemove->removeFromParentAndCleanup(true);
+    }
+
+    for (int i = 0; i < stars; i++) {
+        auto rect = Rect(0, 0, _starsLayer->getBoundingBox().size.height, _starsLayer->getBoundingBox().size.height);
+        auto star = Sprite::create(ImageManager::getImage("star"));
+        auto scale = _starsLayer->getBoundingBox().size.height / star->getContentSize().height;
+        star->setScale(scale - 0.1);
+        star->setAnchorPoint(Point::ANCHOR_BOTTOM_LEFT);
+        auto margin = 6;
+        if (i == 0) {
+            margin = 0;
+        }
+        star->setPosition(Vec2((i * _starsLayer->getBoundingBox().size.height) + margin, 0));
+        
+        _starsLayer->addChild(star);
+    }
     
     float points = GamePlayPointsManager::getInstance()->getCurrentPoints();
     std::ostringstream pointsString;
@@ -686,20 +770,24 @@ void GamePlay::showDragResult(bool success)
     } else {
         _resultLayer = LayerColor::create(IkasError);
     }
+
     _resultLayer->setContentSize(colorInLayer->getContentSize());
     _resultLayer->setPosition(colorInLayer->getPosition());
     
     _resultLayer->setOpacity(1.0);
     
     labelLayer->addChild(_resultLayer);
-    auto fadeIn = FadeTo::create(0.2, 150);
+    auto fadeIn = FadeTo::create(0.2, 255);
+    auto fadeDuration = FadeTo::create(1.5, 255);
     auto fadeOut = FadeTo::create(0.15, 0);
     
     auto cleanCallback = CallFunc::create([&](){
-        _resultLayer->removeFromParentAndCleanup(true);
-        _resultLayer = NULL;
+        if (_resultLayer != NULL) {
+            _resultLayer->removeFromParentAndCleanup(true);
+            _resultLayer = NULL;
+        }
     });
-    Sequence *sequence = Sequence::create(fadeIn, fadeOut, cleanCallback, NULL);
+    Sequence *sequence = Sequence::create(fadeIn, fadeDuration, fadeOut, cleanCallback, NULL);
     _resultLayer->runAction(sequence);
 }
 

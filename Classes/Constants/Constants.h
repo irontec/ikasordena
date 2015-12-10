@@ -52,15 +52,23 @@ static std::string SoundDisableImage = "sound-off";
 /**
  * App colors
  */
-static cocos2d::Color4B IkasPink = cocos2d::Color4B(231, 58, 82, 255);
-static cocos2d::Color4B IkasRed = cocos2d::Color4B(190, 22, 34, 255);
-static cocos2d::Color4B IkasWhite = cocos2d::Color4B(255, 255, 255, 255);
-static cocos2d::Color4B IkasGrayLight = cocos2d::Color4B(173, 173, 173, 255);
-static cocos2d::Color4B IkasGrayDark = cocos2d::Color4B(87, 87, 87, 255);
-static cocos2d::Color4B IkasPinkAlpha = cocos2d::Color4B(231, 58, 82, 130);
+static cocos2d::Color4B IkasPurple = cocos2d::Color4B(145, 0, 185, 255);
+static cocos2d::Color4B IkasPurpleAlpha = cocos2d::Color4B(145, 0, 185, 130);
+static cocos2d::Color4B IkasPurpleLight = cocos2d::Color4B(198, 53, 228, 255);
+static cocos2d::Color4B IkasYellow = cocos2d::Color4B(217, 146, 22, 255);
+static cocos2d::Color4B IkasYellowLight = cocos2d::Color4B(233, 195, 51, 255);
+static cocos2d::Color4B IkasRed = cocos2d::Color4B(242, 58, 100, 255);
 
-static cocos2d::Color4B IkasSuccess = cocos2d::Color4B(32, 155, 49, 255);
-static cocos2d::Color4B IkasError = cocos2d::Color4B(183, 7, 0, 255);
+
+//static cocos2d::Color4B IkasPink = cocos2d::Color4B(231, 58, 82, 255);
+//static cocos2d::Color4B IkasRed = cocos2d::Color4B(190, 22, 34, 255);
+static cocos2d::Color4B IkasWhite = cocos2d::Color4B(255, 255, 255, 255);
+//static cocos2d::Color4B IkasGrayLight = cocos2d::Color4B(173, 173, 173, 255);
+static cocos2d::Color4B IkasGrayDark = cocos2d::Color4B(87, 87, 87, 255);
+//static cocos2d::Color4B IkasPinkAlpha = cocos2d::Color4B(231, 58, 82, 130);
+
+static cocos2d::Color4B IkasSuccess = cocos2d::Color4B(255, 255, 255, 0);
+static cocos2d::Color4B IkasError = cocos2d::Color4B(242, 58, 100, 255);
 
 /**
  * Different scenes used

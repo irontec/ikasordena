@@ -83,7 +83,7 @@ bool Main::init()
     auto labelPlay = Label::createWithTTF(LanguageManager::getLocalizedText("Main", "play"), MainRegularFont, 70);
     labelPlay->setAlignment(TextHAlignment::CENTER);
     labelPlay->setAnchorPoint(Point::ANCHOR_MIDDLE_TOP);
-    labelPlay->setTextColor(IkasGrayDark);
+    labelPlay->setTextColor(IkasPurpleLight);
     Vec2 positionLabelPlay = _buttonPlay->getPosition();
     positionLabelPlay.y -= ScreenSizeManager::getHeightFromPercentage(2);
     positionLabelPlay.y -= _buttonPlay->getBoundingBox().size.height / 2;
@@ -146,7 +146,7 @@ bool Main::init()
     _labelLoadingAnimation = Label::createWithTTF(LanguageManager::getLocalizedText("Main", "loading"), MainRegularFont, 60);
     _labelLoadingAnimation->setAlignment(TextHAlignment::CENTER);
     _labelLoadingAnimation->setAnchorPoint(Point::ANCHOR_MIDDLE_TOP);
-    _labelLoadingAnimation->setTextColor(Color4B(IkasPinkAlpha));
+    _labelLoadingAnimation->setTextColor(Color4B(IkasPurpleAlpha));
     Vec2 positionLabelLoadingAnimation = loadingAnimation->getPosition();
     positionLabelLoadingAnimation.y -= loadingAnimation->getBoundingBox().size.height / 2;
     positionLabelLoadingAnimation.y -= ScreenSizeManager::getHeightFromPercentage(2);
