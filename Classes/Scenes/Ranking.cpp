@@ -63,6 +63,12 @@ bool Ranking::init()
     background->setAnchorPoint(Point::ANCHOR_MIDDLE);
     this->addChild(background);
     
+    auto backgroundWin = Sprite::create(ImageManager::getImage("background-win"), visibleRect);
+    backgroundWin->setPosition(ScreenSizeManager::getScreenPositionFromPercentage(50, 50));
+    backgroundWin->setAnchorPoint(Point::ANCHOR_MIDDLE);
+    this->addChild(backgroundWin);
+
+    
     buttonsLayer = Layer::create();
     buttonsLayer->setContentSize(visibleRect.size);
     buttonsLayer->setPosition(0, 0);
@@ -97,7 +103,7 @@ bool Ranking::init()
     _labelLoading = Label::createWithTTF(LanguageManager::getLocalizedText("Ranking", "loading"), MainRegularFont, 100);
     _labelLoading->setAnchorPoint(Point::ANCHOR_MIDDLE);
     _labelLoading->setPosition(ScreenSizeManager::getScreenPositionFromPercentage(50, 50));
-    _labelLoading->setTextColor(IkasGrayDark);
+    _labelLoading->setTextColor(IkasPurple);
     this->addChild(_labelLoading);
     
     /* TableView */
@@ -112,13 +118,13 @@ bool Ranking::init()
     auto labelUserTitle = Label::createWithTTF(LanguageManager::getLocalizedText("Ranking", "player"), MainRegularFont, 80);
     labelUserTitle->setAnchorPoint(Point::ANCHOR_MIDDLE);
     labelUserTitle->setPosition(Vec2(_tableViewRanking->getPositionX() + (_tableViewRanking->getBoundingBox().size.width) * 0.25f, _tableViewRanking->getPositionY() + (_tableViewRanking->getBoundingBox().size.height) * 1.1f));
-    labelUserTitle->setTextColor(IkasGrayDark);
+    labelUserTitle->setTextColor(IkasPurpleLight);
     this->addChild(labelUserTitle);
     
     auto labelPointsTitle = Label::createWithTTF(LanguageManager::getLocalizedText("Ranking", "points"), MainRegularFont, 80);
     labelPointsTitle->setAnchorPoint(Point::ANCHOR_MIDDLE);
     labelPointsTitle->setPosition(Vec2(_tableViewRanking->getPositionX() + (_tableViewRanking->getBoundingBox().size.width) * 0.75f, _tableViewRanking->getPositionY() + (_tableViewRanking->getBoundingBox().size.height) * 1.1f));
-    labelPointsTitle->setTextColor(IkasGrayDark);
+    labelPointsTitle->setTextColor(IkasPurpleLight);
     this->addChild(labelPointsTitle);
     
     _api = new IkasAPI();
@@ -167,9 +173,14 @@ TableViewCell* Ranking::tableCellAtIndex(TableView *table, ssize_t idx) {
     number->setVerticalAlignment(TextVAlignment::CENTER);
     number->setHorizontalAlignment(TextHAlignment::LEFT);
     number->setAnchorPoint(Point::ZERO);
-    number->setTextColor(IkasWhite);
+    if (idx == 0) {
+        number->setTextColor(IkasPurple);
+    } else {
+        number->setTextColor(IkasPurpleLight);
+    }
     number->setPosition(Vec2(0 * _tableViewRanking->getBoundingBox().size.width + padding/ _totalLabels, 0));
     cell->addChild(number);
+    
     
     auto name = Label::createWithTTF(rankingData->getuser(), MainRegularFont, 60);
     name->setContentSize(Size(_tableViewRanking->getBoundingBox().size.width / _totalLabels, TableViewItemHeightValue.asFloat()));
@@ -178,7 +189,11 @@ TableViewCell* Ranking::tableCellAtIndex(TableView *table, ssize_t idx) {
     name->setVerticalAlignment(TextVAlignment::CENTER);
     name->setHorizontalAlignment(TextHAlignment::CENTER);
     name->setAnchorPoint(Point::ZERO);
-    name->setTextColor(IkasWhite);
+    if (idx == 0) {
+        name->setTextColor(IkasPurple);
+    } else {
+        name->setTextColor(IkasPurpleLight);
+    }
     name->setPosition(Vec2(0 * _tableViewRanking->getBoundingBox().size.width / _totalLabels, 0));
     cell->addChild(name);
     
@@ -194,22 +209,50 @@ TableViewCell* Ranking::tableCellAtIndex(TableView *table, ssize_t idx) {
     pointsLabel->setVerticalAlignment(TextVAlignment::CENTER);
     pointsLabel->setHorizontalAlignment(TextHAlignment::CENTER);
     pointsLabel->setAnchorPoint(Point::ZERO);
-    pointsLabel->setTextColor(IkasWhite);
+    if (idx == 0) {
+        pointsLabel->setTextColor(IkasPurple);
+    } else {
+        pointsLabel->setTextColor(IkasPurpleLight);
+    }
     pointsLabel->setPosition(Vec2(1 * _tableViewRanking->getBoundingBox().size.width / _totalLabels, 0));
     cell->addChild(pointsLabel);
+//    
+//    if (idx % 2 == 0) {
+//        number->setTextColor(IkasWhite);
+//        name->setTextColor(IkasWhite);
+//        pointsLabel->setTextColor(IkasWhite);
+//        colorLayer->setColor(Color3B(IkasRed));
+//        colorLayer->setOpacity(60);
+//    } else {
+//        number->setTextColor(IkasRed);
+//        name->setTextColor(IkasRed);
+//        pointsLabel->setTextColor(IkasRed);
+//        colorLayer->setColor(Color3B(IkasWhite));
+//        colorLayer->setOpacity(0);
+//    }
     
+    LayerColor *topSeparator;
     if (idx % 2 == 0) {
-        number->setTextColor(IkasWhite);
-        name->setTextColor(IkasWhite);
-        pointsLabel->setTextColor(IkasWhite);
-        colorLayer->setColor(Color3B(IkasRed));
-        colorLayer->setOpacity(60);
+        topSeparator = LayerColor::create(IkasPurpleLight);
     } else {
-        number->setTextColor(IkasRed);
-        name->setTextColor(IkasRed);
-        pointsLabel->setTextColor(IkasRed);
-        colorLayer->setColor(Color3B(IkasWhite));
-        colorLayer->setOpacity(0);
+        topSeparator = LayerColor::create(IkasPurpleLightAlpha);
+    }
+    topSeparator->setContentSize(Size(_tableViewRanking->getBoundingBox().size.width, 2));
+    topSeparator->setPosition(Vec2(0, TableViewItemHeightValue.asFloat() - 4));
+    topSeparator->setAnchorPoint(Point::ANCHOR_BOTTOM_LEFT);
+    cell->addChild(topSeparator);
+
+    
+    if (idx == _rankingData.size() - 1) {
+        if (idx % 2 != 0) {
+            topSeparator = LayerColor::create(IkasPurpleLight);
+        } else {
+            topSeparator = LayerColor::create(IkasPurpleLightAlpha);
+        }
+        topSeparator->setContentSize(Size(_tableViewRanking->getBoundingBox().size.width, 2));
+        topSeparator->setPosition(Vec2(0, 0));
+        topSeparator->setAnchorPoint(Point::ANCHOR_BOTTOM_LEFT);
+        cell->addChild(topSeparator);
     }
     return cell;
 }

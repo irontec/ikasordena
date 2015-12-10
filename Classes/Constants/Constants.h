@@ -55,6 +55,7 @@ static std::string SoundDisableImage = "sound-off";
 static cocos2d::Color4B IkasPurple = cocos2d::Color4B(145, 0, 185, 255);
 static cocos2d::Color4B IkasPurpleAlpha = cocos2d::Color4B(145, 0, 185, 130);
 static cocos2d::Color4B IkasPurpleLight = cocos2d::Color4B(198, 53, 228, 255);
+static cocos2d::Color4B IkasPurpleLightAlpha = cocos2d::Color4B(198, 53, 228, 130);
 static cocos2d::Color4B IkasYellow = cocos2d::Color4B(217, 146, 22, 255);
 static cocos2d::Color4B IkasYellowLight = cocos2d::Color4B(233, 195, 51, 255);
 static cocos2d::Color4B IkasRed = cocos2d::Color4B(242, 58, 100, 255);
