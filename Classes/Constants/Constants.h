@@ -15,7 +15,7 @@ using namespace cocos2d;
 /**
  * Embedded zip name
  */
-static std::string DefaultZipName = "ikasordena-563774185acd0.zip";
+static std::string DefaultZipName = "ikasordena-568e603767514.zip";
 
 /**
  * URL´s
